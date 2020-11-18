@@ -60,9 +60,8 @@ namespace EQ2CollQuests
         {
             if (QuestName != x.QuestName)
                 return QuestName.CompareTo(x.QuestName);
-            if (DaybreakID != x.DaybreakID)
+            else
                 return DaybreakID.CompareTo(x.DaybreakID);
-            return items.GetHashCode().CompareTo(x.items.GetHashCode());
         }
         #endregion
         public override string ToString() { return QuestName; }

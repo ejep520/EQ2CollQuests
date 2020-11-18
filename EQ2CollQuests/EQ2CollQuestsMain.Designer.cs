@@ -30,6 +30,7 @@ namespace EQ2CollQuests
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reloadFromDiskToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,7 +59,6 @@ namespace EQ2CollQuests
             this.AddChar = new System.Windows.Forms.Button();
             this.CharListBox = new System.Windows.Forms.ListBox();
             this.CharQuestSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.GetAllProgressBar = new System.Windows.Forms.ProgressBar();
             this.CharQuestListBox = new System.Windows.Forms.ListBox();
             this.CharIntroTxtBox = new System.Windows.Forms.TextBox();
             this.CharQuestItemsCheckListBox = new System.Windows.Forms.CheckedListBox();
@@ -75,6 +75,10 @@ namespace EQ2CollQuests
             this.SettingsExpertMultMTBLabel = new System.Windows.Forms.Label();
             this.SettingsExpertMultMTB = new System.Windows.Forms.MaskedTextBox();
             this.SettingsBoolCheckListBox = new System.Windows.Forms.CheckedListBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.StatusStripDirtyIndicator = new System.Windows.Forms.ToolStripStatusLabel();
+            this.StatusStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.menuStrip1.SuspendLayout();
             this.TabControlStrip.SuspendLayout();
             this.CharacterPage.SuspendLayout();
@@ -92,6 +96,7 @@ namespace EQ2CollQuests
             this.QuestListSplitContainer.Panel2.SuspendLayout();
             this.QuestListSplitContainer.SuspendLayout();
             this.SettingsPage.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -128,6 +133,7 @@ namespace EQ2CollQuests
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.saveToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
@@ -275,6 +281,8 @@ namespace EQ2CollQuests
             this.CharacterPage.TabIndex = 0;
             this.CharacterPage.Text = "Character Page";
             this.CharacterPage.UseVisualStyleBackColor = true;
+            this.CharacterPage.Enter += new System.EventHandler(this.CharacterPage_Enter);
+            this.CharacterPage.Resize += new System.EventHandler(this.CharacterPage_Resize);
             // 
             // CharListSplitContainer
             // 
@@ -293,8 +301,9 @@ namespace EQ2CollQuests
             // 
             this.CharListSplitContainer.Panel2.Controls.Add(this.CharQuestSplitContainer);
             this.CharListSplitContainer.Size = new System.Drawing.Size(786, 391);
-            this.CharListSplitContainer.SplitterDistance = 198;
+            this.CharListSplitContainer.SplitterDistance = 262;
             this.CharListSplitContainer.TabIndex = 0;
+            this.CharListSplitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.CharListSplitContainer_SplitterMoved);
             // 
             // DelChar
             // 
@@ -313,6 +322,7 @@ namespace EQ2CollQuests
             this.UpdChar.TabIndex = 2;
             this.UpdChar.Text = "Update";
             this.UpdChar.UseVisualStyleBackColor = true;
+            this.UpdChar.Click += new System.EventHandler(this.UpdChar_Click);
             this.UpdChar.Paint += new System.Windows.Forms.PaintEventHandler(this.UpdChar_Paint);
             // 
             // AddChar
@@ -332,8 +342,9 @@ namespace EQ2CollQuests
             this.CharListBox.FormattingEnabled = true;
             this.CharListBox.Location = new System.Drawing.Point(0, 0);
             this.CharListBox.Name = "CharListBox";
-            this.CharListBox.Size = new System.Drawing.Size(198, 355);
+            this.CharListBox.Size = new System.Drawing.Size(262, 355);
             this.CharListBox.TabIndex = 0;
+            this.toolTip1.SetToolTip(this.CharListBox, "This is the list of your characters.");
             this.CharListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.CharListBox_DrawItem);
             this.CharListBox.SelectedIndexChanged += new System.EventHandler(this.CharListBox_SelectedIndexChanged);
             // 
@@ -346,24 +357,15 @@ namespace EQ2CollQuests
             // 
             // CharQuestSplitContainer.Panel1
             // 
-            this.CharQuestSplitContainer.Panel1.Controls.Add(this.GetAllProgressBar);
             this.CharQuestSplitContainer.Panel1.Controls.Add(this.CharQuestListBox);
             this.CharQuestSplitContainer.Panel1.Controls.Add(this.CharIntroTxtBox);
             // 
             // CharQuestSplitContainer.Panel2
             // 
             this.CharQuestSplitContainer.Panel2.Controls.Add(this.CharQuestItemsCheckListBox);
-            this.CharQuestSplitContainer.Size = new System.Drawing.Size(584, 391);
+            this.CharQuestSplitContainer.Size = new System.Drawing.Size(520, 391);
             this.CharQuestSplitContainer.SplitterDistance = 224;
             this.CharQuestSplitContainer.TabIndex = 0;
-            // 
-            // GetAllProgressBar
-            // 
-            this.GetAllProgressBar.Location = new System.Drawing.Point(198, 95);
-            this.GetAllProgressBar.Name = "GetAllProgressBar";
-            this.GetAllProgressBar.Size = new System.Drawing.Size(100, 23);
-            this.GetAllProgressBar.TabIndex = 2;
-            this.GetAllProgressBar.Visible = false;
             // 
             // CharQuestListBox
             // 
@@ -371,8 +373,10 @@ namespace EQ2CollQuests
             this.CharQuestListBox.FormattingEnabled = true;
             this.CharQuestListBox.Location = new System.Drawing.Point(0, 25);
             this.CharQuestListBox.Name = "CharQuestListBox";
-            this.CharQuestListBox.Size = new System.Drawing.Size(584, 199);
+            this.CharQuestListBox.Size = new System.Drawing.Size(520, 199);
+            this.CharQuestListBox.Sorted = true;
             this.CharQuestListBox.TabIndex = 1;
+            this.toolTip1.SetToolTip(this.CharQuestListBox, "This is the list collection quests this character has started.");
             this.CharQuestListBox.SelectedIndexChanged += new System.EventHandler(this.CharQuestListBox_SelectedIndexChanged);
             // 
             // CharIntroTxtBox
@@ -383,10 +387,10 @@ namespace EQ2CollQuests
             this.CharIntroTxtBox.Location = new System.Drawing.Point(0, 0);
             this.CharIntroTxtBox.Name = "CharIntroTxtBox";
             this.CharIntroTxtBox.ReadOnly = true;
-            this.CharIntroTxtBox.Size = new System.Drawing.Size(584, 19);
+            this.CharIntroTxtBox.Size = new System.Drawing.Size(520, 19);
             this.CharIntroTxtBox.TabIndex = 0;
             this.CharIntroTxtBox.TabStop = false;
-            this.CharIntroTxtBox.Validating += new System.ComponentModel.CancelEventHandler(this.CharIntroTxtBox_Validating);
+            this.toolTip1.SetToolTip(this.CharIntroTxtBox, "This is info about the selected character.");
             // 
             // CharQuestItemsCheckListBox
             // 
@@ -395,8 +399,11 @@ namespace EQ2CollQuests
             this.CharQuestItemsCheckListBox.FormattingEnabled = true;
             this.CharQuestItemsCheckListBox.Location = new System.Drawing.Point(0, 0);
             this.CharQuestItemsCheckListBox.Name = "CharQuestItemsCheckListBox";
-            this.CharQuestItemsCheckListBox.Size = new System.Drawing.Size(584, 163);
+            this.CharQuestItemsCheckListBox.Size = new System.Drawing.Size(520, 163);
+            this.CharQuestItemsCheckListBox.Sorted = true;
             this.CharQuestItemsCheckListBox.TabIndex = 0;
+            this.toolTip1.SetToolTip(this.CharQuestItemsCheckListBox, "This is the list of items in the selected quest and whether the selected characte" +
+        "r has ");
             // 
             // QuestsPage
             // 
@@ -409,6 +416,7 @@ namespace EQ2CollQuests
             this.QuestsPage.Text = "Quests Page";
             this.QuestsPage.UseVisualStyleBackColor = true;
             this.QuestsPage.Enter += new System.EventHandler(this.QuestsPage_Enter);
+            this.QuestsPage.Resize += new System.EventHandler(this.QuestsPage_Resize);
             // 
             // QuestListSplitContainer
             // 
@@ -429,6 +437,7 @@ namespace EQ2CollQuests
             this.QuestListSplitContainer.Size = new System.Drawing.Size(786, 391);
             this.QuestListSplitContainer.SplitterDistance = 181;
             this.QuestListSplitContainer.TabIndex = 0;
+            this.QuestListSplitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.QuestListSplitContainer_SplitterMoved);
             // 
             // QuestListUpdateBtn
             // 
@@ -441,7 +450,7 @@ namespace EQ2CollQuests
             // 
             // QuestsAddQuestBtn
             // 
-            this.QuestsAddQuestBtn.Location = new System.Drawing.Point(6, 366);
+            this.QuestsAddQuestBtn.Location = new System.Drawing.Point(3, 366);
             this.QuestsAddQuestBtn.Name = "QuestsAddQuestBtn";
             this.QuestsAddQuestBtn.Size = new System.Drawing.Size(86, 23);
             this.QuestsAddQuestBtn.TabIndex = 1;
@@ -451,10 +460,12 @@ namespace EQ2CollQuests
             // 
             // QuestListBox
             // 
+            this.QuestListBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.QuestListBox.FormattingEnabled = true;
-            this.QuestListBox.Location = new System.Drawing.Point(6, 6);
+            this.QuestListBox.Location = new System.Drawing.Point(0, 0);
             this.QuestListBox.Name = "QuestListBox";
-            this.QuestListBox.Size = new System.Drawing.Size(172, 355);
+            this.QuestListBox.Size = new System.Drawing.Size(181, 355);
+            this.QuestListBox.Sorted = true;
             this.QuestListBox.TabIndex = 0;
             this.QuestListBox.SelectedIndexChanged += new System.EventHandler(this.QuestListBox_SelectedIndexChanged);
             // 
@@ -465,15 +476,15 @@ namespace EQ2CollQuests
             this.QuestItemsTreeView.Name = "QuestItemsTreeView";
             this.QuestItemsTreeView.Size = new System.Drawing.Size(601, 368);
             this.QuestItemsTreeView.TabIndex = 1;
-            this.QuestItemsTreeView.VisibleChanged += new System.EventHandler(this.QuestItemsTreeView_VisibleChanged);
             // 
             // QuestIntroTextBox
             // 
+            this.QuestIntroTextBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.QuestIntroTextBox.Enabled = false;
             this.QuestIntroTextBox.Font = new System.Drawing.Font("Georgia", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.QuestIntroTextBox.Location = new System.Drawing.Point(1, 1);
+            this.QuestIntroTextBox.Location = new System.Drawing.Point(0, 0);
             this.QuestIntroTextBox.Name = "QuestIntroTextBox";
-            this.QuestIntroTextBox.Size = new System.Drawing.Size(589, 26);
+            this.QuestIntroTextBox.Size = new System.Drawing.Size(601, 26);
             this.QuestIntroTextBox.TabIndex = 0;
             this.QuestIntroTextBox.TabStop = false;
             this.QuestIntroTextBox.Text = "This line will introduce the quest.";
@@ -544,11 +555,39 @@ namespace EQ2CollQuests
             this.SettingsBoolCheckListBox.Size = new System.Drawing.Size(786, 30);
             this.SettingsBoolCheckListBox.TabIndex = 0;
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.StatusStripDirtyIndicator,
+            this.StatusStripProgressBar});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 424);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(800, 26);
+            this.statusStrip1.TabIndex = 2;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // StatusStripDirtyIndicator
+            // 
+            this.StatusStripDirtyIndicator.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.StatusStripDirtyIndicator.ForeColor = System.Drawing.Color.Red;
+            this.StatusStripDirtyIndicator.Name = "StatusStripDirtyIndicator";
+            this.StatusStripDirtyIndicator.Size = new System.Drawing.Size(109, 21);
+            this.StatusStripDirtyIndicator.Text = "Dirty Indicator";
+            this.StatusStripDirtyIndicator.ToolTipText = "If this space has a disk in it, you have unsaved data.";
+            // 
+            // StatusStripProgressBar
+            // 
+            this.StatusStripProgressBar.Name = "StatusStripProgressBar";
+            this.StatusStripProgressBar.Size = new System.Drawing.Size(100, 20);
+            this.StatusStripProgressBar.ToolTipText = "Current Progress";
+            this.StatusStripProgressBar.Visible = false;
+            // 
             // EQ2CollQuestsMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.TabControlStrip);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -576,6 +615,8 @@ namespace EQ2CollQuests
             this.QuestListSplitContainer.ResumeLayout(false);
             this.SettingsPage.ResumeLayout(false);
             this.SettingsPage.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -627,7 +668,10 @@ namespace EQ2CollQuests
         private System.Windows.Forms.Button QuestListUpdateBtn;
         private System.Windows.Forms.CheckedListBox CharQuestItemsCheckListBox;
         private System.Windows.Forms.ToolStripComboBox PlayingAsComboBox;
-        private System.Windows.Forms.ProgressBar GetAllProgressBar;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel StatusStripDirtyIndicator;
+        private System.Windows.Forms.ToolStripProgressBar StatusStripProgressBar;
     }
 }
 

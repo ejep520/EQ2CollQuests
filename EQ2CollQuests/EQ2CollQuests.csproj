@@ -58,6 +58,9 @@
     <Compile Include="AddQuest.Designer.cs">
       <DependentUpon>AddQuest.cs</DependentUpon>
     </Compile>
+    <Compile Include="CharacterPage.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Characters.cs" />
     <Compile Include="CollQuest.cs" />
     <Compile Include="EQ2CollQuestsMain.cs">
@@ -69,6 +72,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuestItem.cs" />
+    <Compile Include="QuestsPage.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="AddChar.resx">
       <DependentUpon>AddChar.cs</DependentUpon>
     </EmbeddedResource>

@@ -2,14 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.ComponentModel;
-using System.ComponentModel.Design;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
@@ -39,6 +34,7 @@ namespace EQ2CollQuests
                 {
                     _ExpertMult = value;
                     dirties[1] = true;
+                    StatusStripDirtyIndicator.Text = FloppyString;
                 }
             }
         }
@@ -65,6 +61,7 @@ namespace EQ2CollQuests
                 {
                     _GoOnline = value;
                     dirties[1] = true;
+                    StatusStripDirtyIndicator.Text = FloppyString;
                 }
             }
         }
@@ -90,7 +87,11 @@ namespace EQ2CollQuests
                 else
                 {
                     _IndentXml = value;
+                    dirties[0] = true;
                     dirties[1] = true;
+                    dirties[2] = true;
+                    dirties[3] = true;
+                    StatusStripDirtyIndicator.Text = FloppyString;
                     SaveChars();
                     SaveItems();
                     SaveSettings();
@@ -100,8 +101,6 @@ namespace EQ2CollQuests
         }
         private bool _GoOnline = true, _IndentXml = true;
         private double _ExpertMult = 1.0;
-
-
         /// <summary>Dirty Flags</summary>
         /// <value>
         ///     <list type="bullet">
@@ -154,6 +153,7 @@ namespace EQ2CollQuests
         /// <inheritdoc cref="AllBad"/>
         private readonly string[] AllBak = { Program.BakChar, Program.BakSetts, Program.BakItems, Program.BakQuest };
         private readonly string[] UnicodeCheckEx = { char.ConvertFromUtf32(0x2713), char.ConvertFromUtf32(0x1F6AB) };
+        private readonly string FloppyString = char.ConvertFromUtf32(0x1F5AA);
         public EQ2CollQuestsMain()
         {
             InitializeComponent();
@@ -181,23 +181,11 @@ namespace EQ2CollQuests
             {
                 GetConstants();
                 dirties[1] = true;
+                StatusStripDirtyIndicator.Text = FloppyString;
             }
             characterPageToolStripMenuItem.Checked = true;
             TabControlStrip.SelectedTab = CharacterPage;
-            CharListBox.Items.Clear();
-            CharListBox.Enabled = true;
-            if (Program.charList.Count == 0)
-            {
-                CharListBox.Items.Add("Empty!");
-                CharListBox.Enabled = false;
-            }
-            else
-            {
-                foreach (Characters thisChar in Program.charList)
-                {
-                    CharListBox.Items.Add(thisChar);
-                }
-            }
+            StatusStripDirtyIndicator.Text = string.Empty;
         }
         ~EQ2CollQuestsMain() { }
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -205,23 +193,6 @@ namespace EQ2CollQuests
             _ = MessageBox.Show("EQ2 Collections Manager\nWritten by Erik Jepsen <erik@jepster.com>\n2020-10-25",
                 "About",
                 MessageBoxButtons.OK);
-        }
-        private void AddChar_Click(object sender, EventArgs e)
-        {
-            AddCharForm NewCharForm = new AddCharForm();
-            if (NewCharForm.ShowDialog() == DialogResult.OK)
-            {
-                Program.charList.Add(NewCharForm.NewChar);
-                Program.charList.Sort();
-                dirties[0] = true;
-            }
-            NewCharForm.Dispose();
-            CharListBox_DrawItem(sender, null);
-        }
-        private void AddChar_Paint(object sender, PaintEventArgs e)
-        {
-            if (!AddChar.Enabled)
-                AddChar.Enabled = true;
         }
         /// <summary>
         ///     <para>
@@ -246,140 +217,6 @@ namespace EQ2CollQuests
             if ((TabControlStrip.SelectedTab == CharacterPage) && characterPageToolStripMenuItem.Checked)
                 return;
             TabControlStrip.SelectedTab = CharacterPage;
-        }
-        private void CharIntroTxtBox_Validating(object sender, CancelEventArgs e)
-        {
-            CharIntroTxtBox.Text = string.Empty;
-            if (CharListBox.SelectedItem is Characters TempChar)
-            {
-                CharIntroTxtBox.Text = string.Concat($"{TempChar.name} is a level {TempChar.AdvLvl} ",
-                    Program.AdvClasses[TempChar.AdvClass]);
-            }
-        }
-        private void CharListBox_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            CharListBox.Items.Clear();
-            CharListBox.Enabled = true;
-            if (Program.charList.Count == 0)
-            {
-                CharListBox.Items.Add("Empty!");
-                CharListBox.Enabled = false;
-            }
-            else
-            {
-                foreach (Characters thisChar in Program.charList)
-                {
-                    CharListBox.Items.Add(thisChar);
-                }
-            }
-        }
-        private void CharListBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            CharQuestItemsCheckListBox.Items.Clear();
-            CharQuestListBox.Items.Clear();
-            switch (CharListBox.SelectedIndex)
-            {
-                case -1:
-                    CharIntroTxtBox.Text = string.Empty;
-                    break;
-                default:
-                    if (CharListBox.SelectedItem is string)
-                    {
-                        CharIntroTxtBox.Text = string.Empty;
-                    }
-                    else if (CharListBox.SelectedItem is Characters thisChar)
-                    {
-                        CharIntroTxtBox.Text = $"{thisChar.name} is a {thisChar.AdvLvl} {Program.AdvClasses[thisChar.AdvClass]}";
-                        foreach (long thisColl in thisChar.CharCollection.Keys)
-                        {
-                            List<CollQuest> FoundQuests;
-                            try { FoundQuests = Program.questList.FindAll(p => p.DaybreakID == thisColl); }
-                            catch (NullReferenceException) { continue; }
-                            if (FoundQuests.Count == 1)
-                            {
-                                CharQuestListBox.Items.Add(FoundQuests[0]);
-                            }
-                        }
-                    }
-                    if (CharQuestListBox.Items.Count > 0)
-                    {
-                        CharQuestListBox.Refresh();
-                        CharQuestListBox.SelectedIndex = -1;
-                    }
-                    else if (CharListBox.SelectedItem is Characters thisChar)
-                    {
-                        if (thisChar.CharCollection.Count > 0)
-                        {
-                            DialogResult GetQuests = MessageBox.Show($"{thisChar.name} has quests that have not been downloaded. Get them now?",
-                                "Get Missing Quests?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                            if (GetQuests != DialogResult.Yes)
-                                return;
-                            int counter = 0, oldQuestCount = Program.questList.Count, oldItemCount = Program.itemList.Count;
-                            ConcurrentBag<QuestItem> newItems;
-                            Cursor.Current = Cursors.WaitCursor;
-                            GetAllProgressBar.Maximum = thisChar.CharCollection.Count;
-                            GetAllProgressBar.Value = 0;
-                            GetAllProgressBar.Visible = true;
-                            foreach(long thisColl in thisChar.CharCollection.Keys)
-                            {
-                                counter++;
-                                newItems = new ConcurrentBag<QuestItem>();
-                                if (Program.questList.FindAll(p => p.DaybreakID == thisColl).Count == 0)
-                                {
-                                    CollQuest TempQuest = new CollQuest(thisColl);
-                                    Program.questList.Add(TempQuest);
-                                    _ = Parallel.ForEach(TempQuest.items, thisItem =>
-                                    {
-                                        if (Program.itemList.FindAll(q => q.DaybreakID == thisItem).Count == 0)
-                                        {
-                                            if (newItems.Select(r => r.DaybreakID == thisItem).ToList().Count == 0)
-                                                newItems.Add(new QuestItem(thisItem));
-                                        }
-                                    });
-                                }
-                                Program.itemList.AddRange(newItems);
-                                GetAllProgressBar.Value = counter;
-                                if (counter % 100 == 0)
-                                    Console.WriteLine($"{counter} Quests processed.");
-                            }
-                            Cursor.Current = Cursors.Default;
-                            GetAllProgressBar.Visible = false;
-                            Program.questList.Sort();
-                            Program.itemList.Sort();
-                            CharQuestListBox.Refresh();
-                            dirties[2] = oldItemCount == Program.itemList.Count;
-                            dirties[3] = oldQuestCount == Program.questList.Count;
-                        }
-                    }
-                    break;
-            }
-        }
-        private void CharQuestListBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            CharQuestItemsCheckListBox.Items.Clear();
-            if (CharQuestListBox.SelectedIndex == -1)
-            {
-                CharQuestItemsCheckListBox.Refresh();
-                return;
-            }
-            if ((CharQuestListBox.SelectedIndex == 0) && (CharQuestListBox.SelectedItem is string))
-            {
-                CharQuestItemsCheckListBox.Refresh();
-                return;
-            }
-            CollQuest thisQuest = (CollQuest)CharQuestListBox.SelectedItem;
-            Characters thisChar = (Characters)CharListBox.SelectedItem;
-            foreach (long thisItemID in thisQuest.items)
-            {
-                QuestItem thisItem = Program.itemList.Find(p => p.DaybreakID == thisItemID);
-                if (thisItem == null)
-                {
-                    thisItem = new QuestItem(thisItemID);
-                    Program.itemList.Add(thisItem);
-                }
-                CharQuestItemsCheckListBox.Items.Add(thisItem, thisChar.CharCollection[thisQuest.DaybreakID].Contains(thisItemID));
-            }
-            CharQuestItemsCheckListBox.Refresh();
         }
         private void CopyToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -489,6 +326,7 @@ namespace EQ2CollQuests
                         xmlSerializer = new XmlSerializer(typeof(List<Characters>));
                         List<Characters> InChars = (List<Characters>)xmlSerializer.Deserialize(InStream);
                         Program.charList.AddRange(InChars);
+                        Program.charList.Sort();
                         InStream.Dispose();
                         break;
                     case 1:
@@ -511,11 +349,13 @@ namespace EQ2CollQuests
                     case 2:
                         xmlSerializer = new XmlSerializer(typeof(List<QuestItem>));
                         Program.itemList.AddRange((List<QuestItem>)xmlSerializer.Deserialize(InStream));
+                        Program.itemList.Sort();
                         InStream.Dispose();
                         break;
                     case 3:
                         xmlSerializer = new XmlSerializer(typeof(List<CollQuest>));
                         Program.questList.AddRange((List<CollQuest>)xmlSerializer.Deserialize(InStream));
+                        Program.questList.Sort();
                         InStream.Dispose();
                         break;
                     default:
@@ -523,6 +363,10 @@ namespace EQ2CollQuests
                 }
             }
             dirties[1] = false;
+            if (dirties[0] || dirties[2] || dirties[3])
+                StatusStripDirtyIndicator.Text = FloppyString;
+            else
+                StatusStripDirtyIndicator.Text = string.Empty;
         }
         private void PasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -544,44 +388,6 @@ namespace EQ2CollQuests
                         cb.Text = cb.Text.Insert(cb.SelectionStart, InText);
                         cb.SelectionStart = sPos + InText.Length;
                     }
-                }
-            }
-        }
-        private void QuestItemsTreeView_VisibleChanged(object sender, EventArgs e) { }
-        private void QuestsAddQuestBtn_Click(object sender, EventArgs e)
-        {
-            AddQuest NewQuestForm = new AddQuest();
-            if (NewQuestForm.ShowDialog() == DialogResult.OK)
-            {
-                Program.questList.Add(NewQuestForm.NewQuest);
-                Program.questList.Sort();
-                dirties[3] = true;
-            }
-            NewQuestForm.Dispose();
-            QuestListBox.Refresh();
-        }
-        private void QuestsPage_Enter(object sender, EventArgs e)
-        {
-            QuestItemsTreeView.Nodes.Clear();
-            QuestListBox.Items.Clear();
-            QuestListBox.Items.AddRange(Program.questList.ToArray());
-            if (QuestListBox.SelectedItem is CollQuest cq)
-            {
-                foreach (long ThisItem in cq.items)
-                {
-                    TreeNode[] ItemChars = { };
-                    foreach (Characters thisChar in Program.charList)
-                    {
-                        if (!thisChar.CharCollection.ContainsKey(cq.DaybreakID))
-                            ItemChars = ItemChars.Append(new TreeNode($"{UnicodeCheckEx[1]} {thisChar} has not collected this item.")).ToArray();
-                        else if (!thisChar.CharCollection[cq.DaybreakID].Contains(ThisItem))
-                            ItemChars = ItemChars.Append(new TreeNode($"{UnicodeCheckEx[1]} {thisChar} has not collected this item.")).ToArray();
-                        else
-                            ItemChars = ItemChars.Append(new TreeNode($"{UnicodeCheckEx[0]} {thisChar} has collected this item.")).ToArray();
-                    }
-                    _ = QuestItemsTreeView.Nodes.Add(
-                        new TreeNode(Program.itemList.Find(p => p.DaybreakID == ThisItem).ItemName,
-                        ItemChars));
                 }
             }
         }
@@ -636,6 +442,11 @@ namespace EQ2CollQuests
                 {
                     if (dirties[counter] || (!File.Exists(AllDef[counter])))
                     {
+                        if (dirties[counter])
+                        {
+                            dirties[counter] = false;
+                            StatusStripDirtyIndicator.Text = string.Empty;
+                        }
                         if (File.Exists(AllBak[counter]))
                             File.Delete(AllBak[counter]);
                         if (File.Exists(AllDef[counter]))
@@ -704,6 +515,7 @@ namespace EQ2CollQuests
             SettingsBoolCheckListBox.Items.Add("Go Online?", GoOnline);
             SettingsBoolCheckListBox.Items.Add("Indent XML?", IndentXml);
             SettingsExpertMultMTB.Text = ExpertMult.ToString("0#.000");
+            ExpertMultExplained.Rtf = Resources.ExpertMultExpl;
         }
         private void TabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -718,25 +530,5 @@ namespace EQ2CollQuests
             }
         }
         private void UndoToolStripMenuItem_Click(object sender, EventArgs e) { }
-        private void QuestListBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            QuestIntroTextBox.Text = string.Empty;
-            QuestItemsTreeView.Nodes.Clear();
-            if (QuestListBox.SelectedIndex == -1)
-                return;
-        }
-        private void UpdChar_Paint(object sender, PaintEventArgs e)
-        {
-            if (CharListBox.SelectedItem == null)
-            {
-                UpdChar.Enabled = false;
-                DelChar.Enabled = false;
-            }
-            else
-            {
-                UpdChar.Enabled = CharListBox.SelectedItem.GetType() == typeof(Characters);
-                DelChar.Enabled = CharListBox.SelectedItem.GetType() == typeof(Characters);
-            }
-        }
     }
 }

@@ -24,7 +24,7 @@ namespace EQ2CollQuests
         /// <param name="ItemLvl">The level of the item.</param>
         /// <param name="LoreFlag">Indicates if the item's LORE flag is set.</param>
         /// <param name="NoTradeFlag">Indicates if the items NOTRADE flag is set.</param>
-        public QuestItem(string ItemName, long DaybreakID, short ItemLvl, bool LoreFlag, bool NoTradeFlag, short Quantity = 0)
+        public QuestItem(string ItemName, long DaybreakID, short ItemLvl, bool LoreFlag, bool NoTradeFlag)
         {
             this.ItemName = ItemName;
             this.DaybreakID = DaybreakID;
