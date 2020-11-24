@@ -1,11 +1,7 @@
-﻿using EQ2CollQuests.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
@@ -23,7 +19,7 @@ namespace EQ2CollQuests
         /// <value>The multiplier on need for items in &quot;Expert&quot; collections.</value>
         private double ExpertMult
         {
-            get { return _ExpertMult; }
+            get => _ExpertMult;
             set
             {
                 if (value == _ExpertMult)
@@ -100,7 +96,7 @@ namespace EQ2CollQuests
             }
         }
         private bool _GoOnline = true, _IndentXml = true;
-        private double _ExpertMult = 1.0;
+        private double _ExpertMult = 1.5;
         /// <summary>Dirty Flags</summary>
         /// <value>
         ///     <list type="bullet">
@@ -122,8 +118,7 @@ namespace EQ2CollQuests
         ///         </item>
         ///     </list>
         /// </value>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "Flags need to be able to be set.")]
-        private bool[] dirties = { false, false, false, false };
+        private readonly bool[] dirties = { false, false, false, false };
         private short MaxAdvLvl;
         /// <value>
         ///     <list type="bullet">
@@ -184,8 +179,10 @@ namespace EQ2CollQuests
                 StatusStripDirtyIndicator.Text = FloppyString;
             }
             characterPageToolStripMenuItem.Checked = true;
-            TabControlStrip.SelectedTab = CharacterPage;
+            TabControlStrip1.SelectedTab = CharacterPage;
             StatusStripDirtyIndicator.Text = string.Empty;
+            UpdChar.Enabled = false;
+            DelChar.Enabled = false;
         }
         ~EQ2CollQuestsMain() { }
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -214,9 +211,9 @@ namespace EQ2CollQuests
         }
         private void CharacterPageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if ((TabControlStrip.SelectedTab == CharacterPage) && characterPageToolStripMenuItem.Checked)
+            if ((TabControlStrip1.SelectedTab == CharacterPage) && characterPageToolStripMenuItem.Checked)
                 return;
-            TabControlStrip.SelectedTab = CharacterPage;
+            TabControlStrip1.SelectedTab = CharacterPage;
         }
         private void CopyToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -255,7 +252,25 @@ namespace EQ2CollQuests
         }
         private void EQ2CollQuestsMainClosing(object sender, FormClosingEventArgs e)
         {
-            BadEnd();
+            if (dirties[0] || dirties[1] || dirties[2] || dirties[3])
+            {
+                if (MessageBox.Show("You have unsaved data! Do you want to save before you exit?",
+                    "Save Before Exit?", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+                    == DialogResult.Yes)
+                {
+                    SaveData(true);
+                }
+            }
+            for (int counter = 0; counter < 4; counter++)
+            {
+                if (File.Exists(AllTemp[counter]))
+                    File.Delete(AllTemp[counter]);
+            }
+        }
+        private void EQ2CollQuestsMain_Resize(object sender, EventArgs e)
+        {
+            TabControlStrip1.Location = new Point(menuStrip1.Left, menuStrip1.Bottom);
+            TabControlStrip1.Height = statusStrip1.Top - statusStrip1.Margin.Top - menuStrip1.Bottom - menuStrip1.Margin.Bottom;
         }
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -282,6 +297,14 @@ namespace EQ2CollQuests
         /// Attempts to load data from &quot;My Documents&quot; and
         /// &quot;&lt;user&gt;\appdata\local\EQ2CollQuests&quot;
         /// </summary>
+        private void HelpToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Help.ShowHelp(this, Program.HelpMain);
+        }
+        private void ItemsPageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TabControlStrip1.SelectedTab = ItemsPage;
+        }
         private void LoadData()
         {
             DialogResult ReplaceMissingFile;
@@ -391,6 +414,23 @@ namespace EQ2CollQuests
                 }
             }
         }
+        private void PlayingAsComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (PlayingAsComboBox.SelectedIndex == -1)
+                return;
+            Playing playing = new Playing((PlayingAsComboBox.SelectedItem as Characters).DaybreakID, ExpertMult);
+            _ = playing.ShowDialog();
+            SaveData();
+            playing.Dispose();
+            PlayingAsComboBox.SelectedIndex = -1;
+            _ = CharListBox.Focus();
+            CharListBox.SelectedIndex = -1;
+            PlayingAsComboBox.Text = "Playing as...";
+        }
+        private void QuestsPageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TabControlStrip1.SelectedTab = QuestsPage;
+        }
         private void ReloadFromDiskToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DialogResult YouSure = MessageBox.Show("Are you sure you want to continue?\nYou will lose all unsaved changes!",
@@ -406,7 +446,7 @@ namespace EQ2CollQuests
             Refresh();
         }
         /// <summary>Writes the list of characters in <see cref="Program.charList"/> to <see cref="Program.TempChar"/>.</summary>
-        public void SaveChars()
+        private void SaveChars()
         {
             FileStream OutStream = File.Create(Program.TempChar);
             XmlWriter xmlWriter = XmlWriter.Create(OutStream, new XmlWriterSettings() { Indent = IndentXml });
@@ -430,7 +470,7 @@ namespace EQ2CollQuests
         ///         </item>
         ///     </list>
         /// </param>
-        public void SaveData(bool CleanSave = false)
+        private void SaveData(bool CleanSave = false)
         {
             SaveChars();
             SaveItems();
@@ -459,7 +499,7 @@ namespace EQ2CollQuests
             }
         }
         /// <summary>Writes <see cref="Program.itemList"/> to <see cref="Program.TempItems"/>.</summary>
-        public void SaveItems()
+        private void SaveItems()
         {
             FileStream OutStream = File.Create(Program.TempItems);
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<QuestItem>));
@@ -471,7 +511,7 @@ namespace EQ2CollQuests
             OutStream.Dispose();
         }
         /// <summary>Writes the existing settings to <see cref="Program.TempSetts"/>.</summary>
-        public void SaveSettings()
+        private void SaveSettings()
         {
             FileStream OutStream = File.Create(Program.TempSetts);
             XmlWriter xmlWriter = XmlWriter.Create(OutStream, new XmlWriterSettings() { Indent = IndentXml });
@@ -498,7 +538,7 @@ namespace EQ2CollQuests
             SaveData(true);
         }
         /// <summary>Writes <see cref="Program.questList"/> to <see cref="Program.TempQuest"/>.</summary>
-        public void SaveQuests()
+        private void SaveQuests()
         {
             FileStream OutStream = File.Create(Program.TempQuest);
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<CollQuest>));
@@ -509,13 +549,9 @@ namespace EQ2CollQuests
             OutStream.Flush();
             OutStream.Dispose();
         }
-        private void SettingsPage_Enter(object sender, EventArgs e)
+        private void SettingsPageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SettingsBoolCheckListBox.Items.Clear();
-            SettingsBoolCheckListBox.Items.Add("Go Online?", GoOnline);
-            SettingsBoolCheckListBox.Items.Add("Indent XML?", IndentXml);
-            SettingsExpertMultMTB.Text = ExpertMult.ToString("0#.000");
-            ExpertMultExplained.Rtf = Resources.ExpertMultExpl;
+            TabControlStrip1.SelectedTab = SettingsPage;
         }
         private void TabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -523,9 +559,9 @@ namespace EQ2CollQuests
             TabPage[] TabPages = { CharacterPage, QuestsPage, ItemsPage, SettingsPage };
             for (int counter = 0; counter < 4; counter++)
             {
-                if (ToolStripItems[counter].Checked && (TabControlStrip.SelectedTab != TabPages[counter]))
+                if (ToolStripItems[counter].Checked && (TabControlStrip1.SelectedTab != TabPages[counter]))
                     ToolStripItems[counter].Checked = false;
-                else if (!ToolStripItems[counter].Checked && (TabControlStrip.SelectedTab == TabPages[counter]))
+                else if (!ToolStripItems[counter].Checked && (TabControlStrip1.SelectedTab == TabPages[counter]))
                     ToolStripItems[counter].Checked = true;
             }
         }

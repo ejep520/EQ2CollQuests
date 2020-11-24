@@ -50,8 +50,10 @@ namespace EQ2CollQuests
             this.settingsPageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PlayingAsComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.TabControlStrip = new System.Windows.Forms.TabControl();
+            this.TabControlStrip1 = new System.Windows.Forms.TabControl();
             this.CharacterPage = new System.Windows.Forms.TabPage();
             this.CharListSplitContainer = new System.Windows.Forms.SplitContainer();
             this.DelChar = new System.Windows.Forms.Button();
@@ -70,6 +72,14 @@ namespace EQ2CollQuests
             this.QuestItemsTreeView = new System.Windows.Forms.TreeView();
             this.QuestIntroTextBox = new System.Windows.Forms.TextBox();
             this.ItemsPage = new System.Windows.Forms.TabPage();
+            this.ItemsPageSplitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.ItemsListBox = new System.Windows.Forms.ListBox();
+            this.ItemsBoolCLB = new System.Windows.Forms.CheckedListBox();
+            this.ItemsItemDaybreakIDLabel = new System.Windows.Forms.Label();
+            this.ItemsItemDaybreakIDTB = new System.Windows.Forms.TextBox();
+            this.ItemsItemLevelLabel = new System.Windows.Forms.Label();
+            this.ItemsItemLevelTB = new System.Windows.Forms.TextBox();
+            this.ItemIntro = new System.Windows.Forms.Label();
             this.SettingsPage = new System.Windows.Forms.TabPage();
             this.ExpertMultExplained = new System.Windows.Forms.RichTextBox();
             this.SettingsExpertMultMTBLabel = new System.Windows.Forms.Label();
@@ -80,7 +90,7 @@ namespace EQ2CollQuests
             this.StatusStripDirtyIndicator = new System.Windows.Forms.ToolStripStatusLabel();
             this.StatusStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.menuStrip1.SuspendLayout();
-            this.TabControlStrip.SuspendLayout();
+            this.TabControlStrip1.SuspendLayout();
             this.CharacterPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.CharListSplitContainer)).BeginInit();
             this.CharListSplitContainer.Panel1.SuspendLayout();
@@ -95,6 +105,11 @@ namespace EQ2CollQuests
             this.QuestListSplitContainer.Panel1.SuspendLayout();
             this.QuestListSplitContainer.Panel2.SuspendLayout();
             this.QuestListSplitContainer.SuspendLayout();
+            this.ItemsPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ItemsPageSplitContainer1)).BeginInit();
+            this.ItemsPageSplitContainer1.Panel1.SuspendLayout();
+            this.ItemsPageSplitContainer1.Panel2.SuspendLayout();
+            this.ItemsPageSplitContainer1.SuspendLayout();
             this.SettingsPage.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -220,18 +235,21 @@ namespace EQ2CollQuests
             this.questsPageToolStripMenuItem.Name = "questsPageToolStripMenuItem";
             this.questsPageToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.questsPageToolStripMenuItem.Text = "Quests Page";
+            this.questsPageToolStripMenuItem.Click += new System.EventHandler(this.QuestsPageToolStripMenuItem_Click);
             // 
             // itemsPageToolStripMenuItem
             // 
             this.itemsPageToolStripMenuItem.Name = "itemsPageToolStripMenuItem";
             this.itemsPageToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.itemsPageToolStripMenuItem.Text = "Items Page";
+            this.itemsPageToolStripMenuItem.Click += new System.EventHandler(this.ItemsPageToolStripMenuItem_Click);
             // 
             // settingsPageToolStripMenuItem
             // 
             this.settingsPageToolStripMenuItem.Name = "settingsPageToolStripMenuItem";
             this.settingsPageToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.settingsPageToolStripMenuItem.Text = "Settings Page";
+            this.settingsPageToolStripMenuItem.Click += new System.EventHandler(this.SettingsPageToolStripMenuItem_Click);
             // 
             // PlayingAsComboBox
             // 
@@ -240,36 +258,52 @@ namespace EQ2CollQuests
             this.PlayingAsComboBox.Name = "PlayingAsComboBox";
             this.PlayingAsComboBox.Size = new System.Drawing.Size(81, 23);
             this.PlayingAsComboBox.Text = "Playing as...";
+            this.PlayingAsComboBox.SelectedIndexChanged += new System.EventHandler(this.PlayingAsComboBox_SelectedIndexChanged);
             // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.helpToolStripMenuItem1,
+            this.toolStripSeparator2,
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 23);
             this.helpToolStripMenuItem.Text = "Help";
             // 
+            // helpToolStripMenuItem1
+            // 
+            this.helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
+            this.helpToolStripMenuItem1.ShortcutKeys = System.Windows.Forms.Keys.F1;
+            this.helpToolStripMenuItem1.Size = new System.Drawing.Size(118, 22);
+            this.helpToolStripMenuItem1.Text = "Help";
+            this.helpToolStripMenuItem1.Click += new System.EventHandler(this.HelpToolStripMenuItem1_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(115, 6);
+            // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
             // 
-            // TabControlStrip
+            // TabControlStrip1
             // 
-            this.TabControlStrip.Alignment = System.Windows.Forms.TabAlignment.Bottom;
-            this.TabControlStrip.Controls.Add(this.CharacterPage);
-            this.TabControlStrip.Controls.Add(this.QuestsPage);
-            this.TabControlStrip.Controls.Add(this.ItemsPage);
-            this.TabControlStrip.Controls.Add(this.SettingsPage);
-            this.TabControlStrip.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TabControlStrip.Location = new System.Drawing.Point(0, 27);
-            this.TabControlStrip.Name = "TabControlStrip";
-            this.TabControlStrip.SelectedIndex = 0;
-            this.TabControlStrip.Size = new System.Drawing.Size(800, 423);
-            this.TabControlStrip.TabIndex = 1;
-            this.TabControlStrip.SelectedIndexChanged += new System.EventHandler(this.TabControl1_SelectedIndexChanged);
+            this.TabControlStrip1.Alignment = System.Windows.Forms.TabAlignment.Bottom;
+            this.TabControlStrip1.Controls.Add(this.CharacterPage);
+            this.TabControlStrip1.Controls.Add(this.QuestsPage);
+            this.TabControlStrip1.Controls.Add(this.ItemsPage);
+            this.TabControlStrip1.Controls.Add(this.SettingsPage);
+            this.TabControlStrip1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.TabControlStrip1.Location = new System.Drawing.Point(0, 27);
+            this.TabControlStrip1.Name = "TabControlStrip1";
+            this.TabControlStrip1.SelectedIndex = 0;
+            this.TabControlStrip1.Size = new System.Drawing.Size(800, 394);
+            this.TabControlStrip1.TabIndex = 1;
+            this.TabControlStrip1.SelectedIndexChanged += new System.EventHandler(this.TabControl1_SelectedIndexChanged);
             // 
             // CharacterPage
             // 
@@ -277,11 +311,12 @@ namespace EQ2CollQuests
             this.CharacterPage.Location = new System.Drawing.Point(4, 4);
             this.CharacterPage.Name = "CharacterPage";
             this.CharacterPage.Padding = new System.Windows.Forms.Padding(3);
-            this.CharacterPage.Size = new System.Drawing.Size(792, 397);
+            this.CharacterPage.Size = new System.Drawing.Size(792, 368);
             this.CharacterPage.TabIndex = 0;
             this.CharacterPage.Text = "Character Page";
             this.CharacterPage.UseVisualStyleBackColor = true;
             this.CharacterPage.Enter += new System.EventHandler(this.CharacterPage_Enter);
+            this.CharacterPage.Leave += new System.EventHandler(this.CharacterPage_Leave);
             this.CharacterPage.Resize += new System.EventHandler(this.CharacterPage_Resize);
             // 
             // CharListSplitContainer
@@ -300,14 +335,14 @@ namespace EQ2CollQuests
             // CharListSplitContainer.Panel2
             // 
             this.CharListSplitContainer.Panel2.Controls.Add(this.CharQuestSplitContainer);
-            this.CharListSplitContainer.Size = new System.Drawing.Size(786, 391);
+            this.CharListSplitContainer.Size = new System.Drawing.Size(786, 362);
             this.CharListSplitContainer.SplitterDistance = 262;
             this.CharListSplitContainer.TabIndex = 0;
             this.CharListSplitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.CharListSplitContainer_SplitterMoved);
             // 
             // DelChar
             // 
-            this.DelChar.Location = new System.Drawing.Point(127, 369);
+            this.DelChar.Location = new System.Drawing.Point(127, 335);
             this.DelChar.Name = "DelChar";
             this.DelChar.Size = new System.Drawing.Size(68, 21);
             this.DelChar.TabIndex = 3;
@@ -316,18 +351,17 @@ namespace EQ2CollQuests
             // 
             // UpdChar
             // 
-            this.UpdChar.Location = new System.Drawing.Point(71, 369);
+            this.UpdChar.Location = new System.Drawing.Point(71, 335);
             this.UpdChar.Name = "UpdChar";
             this.UpdChar.Size = new System.Drawing.Size(50, 22);
             this.UpdChar.TabIndex = 2;
             this.UpdChar.Text = "Update";
             this.UpdChar.UseVisualStyleBackColor = true;
             this.UpdChar.Click += new System.EventHandler(this.UpdChar_Click);
-            this.UpdChar.Paint += new System.Windows.Forms.PaintEventHandler(this.UpdChar_Paint);
             // 
             // AddChar
             // 
-            this.AddChar.Location = new System.Drawing.Point(5, 370);
+            this.AddChar.Location = new System.Drawing.Point(5, 335);
             this.AddChar.Name = "AddChar";
             this.AddChar.Size = new System.Drawing.Size(60, 21);
             this.AddChar.TabIndex = 1;
@@ -342,7 +376,8 @@ namespace EQ2CollQuests
             this.CharListBox.FormattingEnabled = true;
             this.CharListBox.Location = new System.Drawing.Point(0, 0);
             this.CharListBox.Name = "CharListBox";
-            this.CharListBox.Size = new System.Drawing.Size(262, 355);
+            this.CharListBox.Size = new System.Drawing.Size(262, 329);
+            this.CharListBox.Sorted = true;
             this.CharListBox.TabIndex = 0;
             this.toolTip1.SetToolTip(this.CharListBox, "This is the list of your characters.");
             this.CharListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.CharListBox_DrawItem);
@@ -363,17 +398,18 @@ namespace EQ2CollQuests
             // CharQuestSplitContainer.Panel2
             // 
             this.CharQuestSplitContainer.Panel2.Controls.Add(this.CharQuestItemsCheckListBox);
-            this.CharQuestSplitContainer.Size = new System.Drawing.Size(520, 391);
-            this.CharQuestSplitContainer.SplitterDistance = 224;
+            this.CharQuestSplitContainer.Size = new System.Drawing.Size(520, 362);
+            this.CharQuestSplitContainer.SplitterDistance = 207;
             this.CharQuestSplitContainer.TabIndex = 0;
+            this.CharQuestSplitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.CharQuestSplitContainer_SplitterMoved);
             // 
             // CharQuestListBox
             // 
             this.CharQuestListBox.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.CharQuestListBox.FormattingEnabled = true;
-            this.CharQuestListBox.Location = new System.Drawing.Point(0, 25);
+            this.CharQuestListBox.Location = new System.Drawing.Point(0, 21);
             this.CharQuestListBox.Name = "CharQuestListBox";
-            this.CharQuestListBox.Size = new System.Drawing.Size(520, 199);
+            this.CharQuestListBox.Size = new System.Drawing.Size(520, 186);
             this.CharQuestListBox.Sorted = true;
             this.CharQuestListBox.TabIndex = 1;
             this.toolTip1.SetToolTip(this.CharQuestListBox, "This is the list collection quests this character has started.");
@@ -399,7 +435,7 @@ namespace EQ2CollQuests
             this.CharQuestItemsCheckListBox.FormattingEnabled = true;
             this.CharQuestItemsCheckListBox.Location = new System.Drawing.Point(0, 0);
             this.CharQuestItemsCheckListBox.Name = "CharQuestItemsCheckListBox";
-            this.CharQuestItemsCheckListBox.Size = new System.Drawing.Size(520, 163);
+            this.CharQuestItemsCheckListBox.Size = new System.Drawing.Size(520, 151);
             this.CharQuestItemsCheckListBox.Sorted = true;
             this.CharQuestItemsCheckListBox.TabIndex = 0;
             this.toolTip1.SetToolTip(this.CharQuestItemsCheckListBox, "This is the list of items in the selected quest and whether the selected characte" +
@@ -411,7 +447,7 @@ namespace EQ2CollQuests
             this.QuestsPage.Location = new System.Drawing.Point(4, 4);
             this.QuestsPage.Name = "QuestsPage";
             this.QuestsPage.Padding = new System.Windows.Forms.Padding(3);
-            this.QuestsPage.Size = new System.Drawing.Size(792, 397);
+            this.QuestsPage.Size = new System.Drawing.Size(792, 368);
             this.QuestsPage.TabIndex = 1;
             this.QuestsPage.Text = "Quests Page";
             this.QuestsPage.UseVisualStyleBackColor = true;
@@ -434,7 +470,7 @@ namespace EQ2CollQuests
             // 
             this.QuestListSplitContainer.Panel2.Controls.Add(this.QuestItemsTreeView);
             this.QuestListSplitContainer.Panel2.Controls.Add(this.QuestIntroTextBox);
-            this.QuestListSplitContainer.Size = new System.Drawing.Size(786, 391);
+            this.QuestListSplitContainer.Size = new System.Drawing.Size(786, 362);
             this.QuestListSplitContainer.SplitterDistance = 181;
             this.QuestListSplitContainer.TabIndex = 0;
             this.QuestListSplitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.QuestListSplitContainer_SplitterMoved);
@@ -472,7 +508,7 @@ namespace EQ2CollQuests
             // QuestItemsTreeView
             // 
             this.QuestItemsTreeView.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.QuestItemsTreeView.Location = new System.Drawing.Point(0, 23);
+            this.QuestItemsTreeView.Location = new System.Drawing.Point(0, -6);
             this.QuestItemsTreeView.Name = "QuestItemsTreeView";
             this.QuestItemsTreeView.Size = new System.Drawing.Size(601, 368);
             this.QuestItemsTreeView.TabIndex = 1;
@@ -491,13 +527,108 @@ namespace EQ2CollQuests
             // 
             // ItemsPage
             // 
+            this.ItemsPage.Controls.Add(this.ItemsPageSplitContainer1);
             this.ItemsPage.Location = new System.Drawing.Point(4, 4);
             this.ItemsPage.Name = "ItemsPage";
             this.ItemsPage.Padding = new System.Windows.Forms.Padding(3);
-            this.ItemsPage.Size = new System.Drawing.Size(792, 397);
+            this.ItemsPage.Size = new System.Drawing.Size(792, 368);
             this.ItemsPage.TabIndex = 2;
             this.ItemsPage.Text = "Items Page";
             this.ItemsPage.UseVisualStyleBackColor = true;
+            this.ItemsPage.Enter += new System.EventHandler(this.ItemsPage_Enter);
+            this.ItemsPage.Leave += new System.EventHandler(this.ItemsPage_Leave);
+            // 
+            // ItemsPageSplitContainer1
+            // 
+            this.ItemsPageSplitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ItemsPageSplitContainer1.Location = new System.Drawing.Point(3, 3);
+            this.ItemsPageSplitContainer1.Name = "ItemsPageSplitContainer1";
+            // 
+            // ItemsPageSplitContainer1.Panel1
+            // 
+            this.ItemsPageSplitContainer1.Panel1.Controls.Add(this.ItemsListBox);
+            // 
+            // ItemsPageSplitContainer1.Panel2
+            // 
+            this.ItemsPageSplitContainer1.Panel2.Controls.Add(this.ItemsBoolCLB);
+            this.ItemsPageSplitContainer1.Panel2.Controls.Add(this.ItemsItemDaybreakIDLabel);
+            this.ItemsPageSplitContainer1.Panel2.Controls.Add(this.ItemsItemDaybreakIDTB);
+            this.ItemsPageSplitContainer1.Panel2.Controls.Add(this.ItemsItemLevelLabel);
+            this.ItemsPageSplitContainer1.Panel2.Controls.Add(this.ItemsItemLevelTB);
+            this.ItemsPageSplitContainer1.Panel2.Controls.Add(this.ItemIntro);
+            this.ItemsPageSplitContainer1.Size = new System.Drawing.Size(786, 362);
+            this.ItemsPageSplitContainer1.SplitterDistance = 262;
+            this.ItemsPageSplitContainer1.TabIndex = 0;
+            // 
+            // ItemsListBox
+            // 
+            this.ItemsListBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ItemsListBox.FormattingEnabled = true;
+            this.ItemsListBox.Location = new System.Drawing.Point(0, 0);
+            this.ItemsListBox.Name = "ItemsListBox";
+            this.ItemsListBox.Size = new System.Drawing.Size(262, 362);
+            this.ItemsListBox.Sorted = true;
+            this.ItemsListBox.TabIndex = 0;
+            this.ItemsListBox.SelectedIndexChanged += new System.EventHandler(this.ItemsListBox_SelectedIndexChanged);
+            // 
+            // ItemsBoolCLB
+            // 
+            this.ItemsBoolCLB.Enabled = false;
+            this.ItemsBoolCLB.FormattingEnabled = true;
+            this.ItemsBoolCLB.Location = new System.Drawing.Point(2, 49);
+            this.ItemsBoolCLB.MultiColumn = true;
+            this.ItemsBoolCLB.Name = "ItemsBoolCLB";
+            this.ItemsBoolCLB.Size = new System.Drawing.Size(512, 19);
+            this.ItemsBoolCLB.TabIndex = 5;
+            this.toolTip1.SetToolTip(this.ItemsBoolCLB, "Settings for this item.");
+            // 
+            // ItemsItemDaybreakIDLabel
+            // 
+            this.ItemsItemDaybreakIDLabel.AutoSize = true;
+            this.ItemsItemDaybreakIDLabel.Location = new System.Drawing.Point(344, 26);
+            this.ItemsItemDaybreakIDLabel.Name = "ItemsItemDaybreakIDLabel";
+            this.ItemsItemDaybreakIDLabel.Size = new System.Drawing.Size(67, 13);
+            this.ItemsItemDaybreakIDLabel.TabIndex = 4;
+            this.ItemsItemDaybreakIDLabel.Text = "Daybreak ID";
+            this.toolTip1.SetToolTip(this.ItemsItemDaybreakIDLabel, "This is the Daybreak ID number of the item.");
+            // 
+            // ItemsItemDaybreakIDTB
+            // 
+            this.ItemsItemDaybreakIDTB.Enabled = false;
+            this.ItemsItemDaybreakIDTB.Location = new System.Drawing.Point(417, 23);
+            this.ItemsItemDaybreakIDTB.Name = "ItemsItemDaybreakIDTB";
+            this.ItemsItemDaybreakIDTB.Size = new System.Drawing.Size(98, 20);
+            this.ItemsItemDaybreakIDTB.TabIndex = 3;
+            this.toolTip1.SetToolTip(this.ItemsItemDaybreakIDTB, "This is the Daybreak ID number of the item.");
+            // 
+            // ItemsItemLevelLabel
+            // 
+            this.ItemsItemLevelLabel.AutoSize = true;
+            this.ItemsItemLevelLabel.Location = new System.Drawing.Point(48, 26);
+            this.ItemsItemLevelLabel.Name = "ItemsItemLevelLabel";
+            this.ItemsItemLevelLabel.Size = new System.Drawing.Size(33, 13);
+            this.ItemsItemLevelLabel.TabIndex = 2;
+            this.ItemsItemLevelLabel.Text = "Level";
+            // 
+            // ItemsItemLevelTB
+            // 
+            this.ItemsItemLevelTB.Enabled = false;
+            this.ItemsItemLevelTB.Location = new System.Drawing.Point(2, 23);
+            this.ItemsItemLevelTB.Name = "ItemsItemLevelTB";
+            this.ItemsItemLevelTB.Size = new System.Drawing.Size(39, 20);
+            this.ItemsItemLevelTB.TabIndex = 1;
+            this.toolTip1.SetToolTip(this.ItemsItemLevelTB, "The item\'s level.");
+            // 
+            // ItemIntro
+            // 
+            this.ItemIntro.BackColor = System.Drawing.SystemColors.Info;
+            this.ItemIntro.Dock = System.Windows.Forms.DockStyle.Top;
+            this.ItemIntro.Font = new System.Drawing.Font("Georgia", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ItemIntro.Location = new System.Drawing.Point(0, 0);
+            this.ItemIntro.Name = "ItemIntro";
+            this.ItemIntro.Size = new System.Drawing.Size(520, 20);
+            this.ItemIntro.TabIndex = 0;
+            this.toolTip1.SetToolTip(this.ItemIntro, "This is the item\'s name.");
             // 
             // SettingsPage
             // 
@@ -508,21 +639,23 @@ namespace EQ2CollQuests
             this.SettingsPage.Location = new System.Drawing.Point(4, 4);
             this.SettingsPage.Name = "SettingsPage";
             this.SettingsPage.Padding = new System.Windows.Forms.Padding(3);
-            this.SettingsPage.Size = new System.Drawing.Size(792, 397);
+            this.SettingsPage.Size = new System.Drawing.Size(792, 368);
             this.SettingsPage.TabIndex = 3;
             this.SettingsPage.Text = "Settings Page";
             this.SettingsPage.UseVisualStyleBackColor = true;
             this.SettingsPage.Enter += new System.EventHandler(this.SettingsPage_Enter);
+            this.SettingsPage.Leave += new System.EventHandler(this.SettingsPage_Leave);
+            this.SettingsPage.Resize += new System.EventHandler(this.SettingsPage_Resize);
             // 
             // ExpertMultExplained
             // 
             this.ExpertMultExplained.BackColor = System.Drawing.SystemColors.Info;
             this.ExpertMultExplained.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ExpertMultExplained.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.ExpertMultExplained.Location = new System.Drawing.Point(3, 66);
+            this.ExpertMultExplained.Location = new System.Drawing.Point(3, 65);
             this.ExpertMultExplained.Name = "ExpertMultExplained";
             this.ExpertMultExplained.ReadOnly = true;
-            this.ExpertMultExplained.Size = new System.Drawing.Size(786, 328);
+            this.ExpertMultExplained.Size = new System.Drawing.Size(786, 300);
             this.ExpertMultExplained.TabIndex = 3;
             this.ExpertMultExplained.Text = "";
             // 
@@ -530,30 +663,34 @@ namespace EQ2CollQuests
             // 
             this.SettingsExpertMultMTBLabel.AutoSize = true;
             this.SettingsExpertMultMTBLabel.Font = new System.Drawing.Font("Georgia", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SettingsExpertMultMTBLabel.Location = new System.Drawing.Point(75, 42);
+            this.SettingsExpertMultMTBLabel.Location = new System.Drawing.Point(77, 38);
             this.SettingsExpertMultMTBLabel.Name = "SettingsExpertMultMTBLabel";
             this.SettingsExpertMultMTBLabel.Size = new System.Drawing.Size(203, 18);
             this.SettingsExpertMultMTBLabel.TabIndex = 2;
             this.SettingsExpertMultMTBLabel.Text = "Expert Collection Multiplier";
+            this.SettingsExpertMultMTBLabel.Click += new System.EventHandler(this.SettingsExpertMultMTBLabel_Click);
             // 
             // SettingsExpertMultMTB
             // 
-            this.SettingsExpertMultMTB.Location = new System.Drawing.Point(6, 43);
+            this.SettingsExpertMultMTB.Location = new System.Drawing.Point(8, 39);
             this.SettingsExpertMultMTB.Mask = "90.099";
             this.SettingsExpertMultMTB.Name = "SettingsExpertMultMTB";
             this.SettingsExpertMultMTB.PromptChar = ' ';
             this.SettingsExpertMultMTB.Size = new System.Drawing.Size(63, 20);
             this.SettingsExpertMultMTB.TabIndex = 1;
+            this.SettingsExpertMultMTB.TextChanged += new System.EventHandler(this.SettingsExpertMultMTB_TextChanged);
             // 
             // SettingsBoolCheckListBox
             // 
             this.SettingsBoolCheckListBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.SettingsBoolCheckListBox.CheckOnClick = true;
             this.SettingsBoolCheckListBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.SettingsBoolCheckListBox.FormattingEnabled = true;
             this.SettingsBoolCheckListBox.Location = new System.Drawing.Point(3, 3);
             this.SettingsBoolCheckListBox.Name = "SettingsBoolCheckListBox";
             this.SettingsBoolCheckListBox.Size = new System.Drawing.Size(786, 30);
             this.SettingsBoolCheckListBox.TabIndex = 0;
+            this.SettingsBoolCheckListBox.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.SettingsBoolCheckListBox_ItemCheck);
             // 
             // statusStrip1
             // 
@@ -588,15 +725,16 @@ namespace EQ2CollQuests
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.TabControlStrip);
+            this.Controls.Add(this.TabControlStrip1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "EQ2CollQuestsMain";
             this.Text = "EQ2 Collection Quests";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EQ2CollQuestsMainClosing);
+            this.Resize += new System.EventHandler(this.EQ2CollQuestsMain_Resize);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.TabControlStrip.ResumeLayout(false);
+            this.TabControlStrip1.ResumeLayout(false);
             this.CharacterPage.ResumeLayout(false);
             this.CharListSplitContainer.Panel1.ResumeLayout(false);
             this.CharListSplitContainer.Panel2.ResumeLayout(false);
@@ -613,6 +751,12 @@ namespace EQ2CollQuests
             this.QuestListSplitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.QuestListSplitContainer)).EndInit();
             this.QuestListSplitContainer.ResumeLayout(false);
+            this.ItemsPage.ResumeLayout(false);
+            this.ItemsPageSplitContainer1.Panel1.ResumeLayout(false);
+            this.ItemsPageSplitContainer1.Panel2.ResumeLayout(false);
+            this.ItemsPageSplitContainer1.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ItemsPageSplitContainer1)).EndInit();
+            this.ItemsPageSplitContainer1.ResumeLayout(false);
             this.SettingsPage.ResumeLayout(false);
             this.SettingsPage.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
@@ -643,7 +787,7 @@ namespace EQ2CollQuests
         private System.Windows.Forms.ToolStripMenuItem settingsPageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.TabControl TabControlStrip;
+        private System.Windows.Forms.TabControl TabControlStrip1;
         private System.Windows.Forms.TabPage CharacterPage;
         private System.Windows.Forms.TabPage QuestsPage;
         private System.Windows.Forms.SplitContainer CharListSplitContainer;
@@ -672,6 +816,16 @@ namespace EQ2CollQuests
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel StatusStripDirtyIndicator;
         private System.Windows.Forms.ToolStripProgressBar StatusStripProgressBar;
+        private System.Windows.Forms.SplitContainer ItemsPageSplitContainer1;
+        private System.Windows.Forms.ListBox ItemsListBox;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.Label ItemIntro;
+        private System.Windows.Forms.Label ItemsItemLevelLabel;
+        private System.Windows.Forms.TextBox ItemsItemLevelTB;
+        private System.Windows.Forms.Label ItemsItemDaybreakIDLabel;
+        private System.Windows.Forms.TextBox ItemsItemDaybreakIDTB;
+        private System.Windows.Forms.CheckedListBox ItemsBoolCLB;
     }
 }
 

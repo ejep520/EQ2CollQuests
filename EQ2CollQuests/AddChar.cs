@@ -6,6 +6,7 @@ namespace EQ2CollQuests
 {
     public partial class AddCharForm : Form
     {
+        private const string CharName = "Character's Name";
         public Characters NewChar;
         public AddCharForm()
         {
@@ -47,14 +48,15 @@ namespace EQ2CollQuests
             if (AddCharSearchResults.SelectedItem == null)
                 return;
             if (AddCharSearchResults.SelectedItem is Characters NewChar)
+            {
                 this.NewChar = NewChar;
-            DialogResult = DialogResult.OK;
-            Close();
+                DialogResult = DialogResult.OK;
+                Close();
+            }
         }
-
         private void AddCharByName_Enter(object sender, EventArgs e)
         {
-            AddCharNameKeyTB.Text = "Character's Name";
+            AddCharNameKeyTB.Text = CharName;
             AddCharNameSearchRsltsLB.Items.Clear();
             AddCharNameConfirm.Enabled = false;
             AddCharNameReset.Enabled = true;
@@ -62,12 +64,13 @@ namespace EQ2CollQuests
         }
         private void AddCharNameKeyTB_GotFocus(object sender, EventArgs e)
         {
-            if (AddCharNameKeyTB.Text == "Character's Name")
+            if (AddCharNameKeyTB.Text == CharName)
                 AddCharNameKeyTB.Text = string.Empty;
         }
         private void AddCharSearchNameBtn_Click(object sender, EventArgs e)
         {
             XDocument CharFinder = Program.GetThisURL(string.Concat(@"character/?c:show=returned,displayname,id&displayname=^", AddCharNameKeyTB.Text));
+            AddCharNameConfirm.Enabled = false;
             foreach (XElement thisChar in CharFinder.Root.Elements("character"))
             {
                 AddCharNameSearchRsltsLB.Items.Add(new AddCharResult(thisChar.Attribute("displayname").Value, long.Parse(thisChar.Attribute("id").Value)));
@@ -81,9 +84,9 @@ namespace EQ2CollQuests
             else
             {
                 AddCharNameSearchRsltsLB.SelectedIndex = 0;
+                AddCharNameConfirm.Enabled = true;
                 _ = AddCharNameConfirm.Focus();
             }
-
         }
         internal class AddCharResult
         {
@@ -100,17 +103,33 @@ namespace EQ2CollQuests
                 return displayName;
             }
         }
-        private void AddCharIDMTB_Enter(object sender, EventArgs e)
+
+        private void AddCharNameReset_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(AddCharIDMTB.Text))
+            AddCharNameKeyTB.Text = string.Empty;
+            AddCharNameSearchRsltsLB.Items.Clear();
+            _ = AddCharNameKeyTB.Focus();
+        }
+
+        private void AddCharNameCofirm_Click(object sender, EventArgs e)
+        {
+            if (AddCharNameSearchRsltsLB.SelectedItem == null)
+                return;
+            if (AddCharNameSearchRsltsLB.SelectedItem is Characters NewChar)
             {
-                AddCharIDMTB.SelectionStart = 0;
+                this.NewChar = NewChar;
+                DialogResult = DialogResult.OK;
+                Close();
             }
-            else
+
+        }
+
+        private void AddCharNameKeyTB_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(AddCharNameKeyTB.Text))
             {
-                AddCharIDMTB.SelectionStart = AddCharIDMTB.Text.Length;
+                AddCharNameKeyTB.Text = CharName;
             }
-            AddCharIDMTB.SelectionLength = 0;
         }
     }
 }

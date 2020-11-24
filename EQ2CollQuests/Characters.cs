@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -8,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace EQ2CollQuests
 {
-    public class Characters:IComparable<Characters>, IXmlSerializable
+    public class Characters:IComparable<Characters>, IXmlSerializable, IDisposable
     {
         public struct KeyEntry
         {
@@ -89,6 +88,7 @@ namespace EQ2CollQuests
             }
             keyEntries.Clear();
             reader.ReadEndElement();
+            reader.ReadEndElement();
         }
         public void WriteXml(XmlWriter writer)
         {
@@ -117,6 +117,18 @@ namespace EQ2CollQuests
         {
             return name;
         }
-
+        public void Dispose()
+        {
+            name = string.Empty;
+            AdvLvl = 0;
+            AdvClass = 0;
+            TimePlayed = 0;
+            DaybreakID = 0;
+            foreach (List<long> thisList in CharCollection.Values)
+            {
+                thisList.Clear();
+            }
+            CharCollection.Clear();
+        }
     }
 }

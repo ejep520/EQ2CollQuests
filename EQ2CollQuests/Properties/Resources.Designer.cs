@@ -61,6 +61,48 @@ namespace EQ2CollQuests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
+        ///&lt;html lang=&quot;en-us&quot;&gt;
+        ///&lt;head&gt;
+        ///&lt;title&gt;EQ2 Collection Quests Help - Character Page&lt;/title&gt;
+        ///&lt;meta charset=&quot;UTF-8&quot;&gt;
+        ///&lt;meta name=&quot;Author&quot; content=&quot;Erik Jepsen&quot;&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///&lt;h1&gt;The Character Page&lt;/h1&gt;
+        ///&lt;p&gt;The Character Page is broken up into three main parts: The Character List, The Character&apos;s Quest List, The Character&apos;s Quest&apos;s Items.&lt;/p&gt;
+        ///&lt;h2&gt;The Character List&lt;/h2&gt;
+        ///&lt;p&gt;This area lists your characters in alphabetical order. The buttons at the bottom of the list allow you to add addition [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CharacterPage {
+            get {
+                return ResourceManager.GetString("CharacterPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
+        ///&lt;html lang=&quot;en-us&quot;&gt;
+        ///&lt;head&gt;
+        ///&lt;title&gt;EQ2 Collection Quests Help&lt;/title&gt;
+        ///&lt;meta charset=&quot;UTF-8&quot;&gt;
+        ///&lt;meta name=&quot;Author&quot; content=&quot;Erik Jepsen&quot;&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///&lt;p&gt;This application and its accompanying help files were written by &lt;a href=&quot;mailto:erik@jepster.com&quot;&gt;Erik Jepsen&lt;/a&gt;, &amp;copy;2020. All rights reserved.&lt;/p&gt;
+        ///&lt;ul&gt;
+        ///&lt;li&gt;&lt;a href=&quot;CharacterPage.html&quot;&gt;Characters Page&lt;/a&gt;&lt;/li&gt;
+        ///&lt;li&gt;&lt;a href=&quot;QuestsPage.html&quot;&gt;Quests Page&lt;/a&gt;&lt;/li&gt;
+        ///&lt;li&gt;&lt;a href=&quot;ItemsPage.html&quot;&gt;Items Page&lt;/a&gt;&lt;/li&gt;
+        ///&lt;li&gt;&lt;a href=&quot;S [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EQ2CollQuests {
+            get {
+                return ResourceManager.GetString("EQ2CollQuests", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {\rtf1\ansi\deff3\adeflang1025
         ///{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset0 Liberation Serif{\*\falt Times New Roman};}{\f4\fswiss\fprq2\fcharset0 Liberation Sans{\*\falt Arial};}{\f5\froman\fprq2\fcharset128 Georgia;}{\f6\fnil\fprq2\fcharset0 Microsoft YaHei;}{\f7\fswiss\fprq0\fcharset128 Arial;}{\f8\fnil\fprq2\fcharset0 Arial;}}
         ///{\colortbl;\red0\green0\blue0;\red0\green0\blue255;\red0\green255\blu [rest of string was truncated]&quot;;.

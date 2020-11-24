@@ -29,6 +29,23 @@ namespace EQ2CollQuests
             if (!AddChar.Enabled)
                 AddChar.Enabled = true;
         }
+        private void CharacterPage_Enter(object sender, EventArgs e)
+        {
+            CharacterPage_Resize(sender, e);
+            CharListBox_DrawItem(sender, null);
+            CharListBox.SelectedIndex = -1;
+            CharIntroTxtBox.Text = string.Empty;
+            CharQuestItemsCheckListBox.Items.Clear();
+        }
+        private void CharacterPage_Leave(object sender, EventArgs e)
+        {
+            if (!(ActiveControl is TabPage))
+                return;
+            CharListBox.Items.Clear();
+            CharQuestListBox.Items.Clear();
+            CharQuestItemsCheckListBox.Items.Clear();
+            CharIntroTxtBox.Text = string.Empty;
+        }
         private void CharacterPage_Resize(object sender, EventArgs e)
         {
             AddChar.Location = new Point(CharListSplitContainer.Panel1.Left, CharListSplitContainer.Panel1.Bottom - AddChar.Height);
@@ -38,17 +55,9 @@ namespace EQ2CollQuests
             UpdChar.Width = AddChar.Width;
             UpdChar.Location = new Point(AddChar.Right + Convert.ToInt32(Math.Round(CharListSplitContainer.Panel1.Width * 0.05, 0)), AddChar.Location.Y);
             CharListBox.Height = CharListSplitContainer.Panel1.Height - AddChar.Height;
-            CharQuestSplitContainer.SplitterDistance = Convert.ToInt32(Math.Round(0.5 * CharQuestSplitContainer.Height));
-            CharQuestListBox.Height = CharQuestSplitContainer.Panel1.Height - CharIntroTxtBox.Height;
         }
-        private void CharacterPage_Enter(object sender, EventArgs e)
-        {
-            CharacterPage_Resize(sender, e);
-            CharListBox_DrawItem(sender, null);
-            CharListBox.SelectedIndex = -1;
-            CharIntroTxtBox.Text = string.Empty;
-            CharQuestItemsCheckListBox.Items.Clear();
-        }
+        /// <summary>Downloads all of the quests <paramref name="thisChar"/> has started it hasn't already been.</summary>
+        /// <param name="thisChar">The character being examined.</param>
         private void CharGetAllQuests(Characters thisChar)
         {
             int oldQuestCount = Program.questList.Count, oldItemCount = Program.itemList.Count;
@@ -89,7 +98,9 @@ namespace EQ2CollQuests
         private void CharListBox_DrawItem(object sender, DrawItemEventArgs e)
         {
             CharListBox.Items.Clear();
+            PlayingAsComboBox.Items.Clear();
             CharListBox.Enabled = true;
+            PlayingAsComboBox.Enabled = true;
             if (Program.charList.Count == 0)
             {
                 CharListBox.Items.Add("Empty!");
@@ -97,10 +108,8 @@ namespace EQ2CollQuests
             }
             else
             {
-                foreach (Characters thisChar in Program.charList)
-                {
-                    CharListBox.Items.Add(thisChar);
-                }
+                CharListBox.Items.AddRange(Program.charList.ToArray());
+                PlayingAsComboBox.Items.AddRange(Program.charList.ToArray());
             }
         }
         private void CharListBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -141,6 +150,18 @@ namespace EQ2CollQuests
                 }
             }
             CharQuestListBox.Refresh();
+            if (CharListBox.SelectedIndex == -1)
+            {
+                UpdChar.Enabled = false;
+                DelChar.Enabled = false;
+            }
+            else
+            {
+                UpdChar.Enabled = thisChar.GetType() == typeof(Characters);
+                DelChar.Enabled = thisChar.GetType() == typeof(Characters);
+            }
+            UpdChar.Refresh();
+            DelChar.Refresh();
             CharQuestListBox.SelectedIndex = -1;
         }
         private void CharListSplitContainer_SplitterMoved(object sender, SplitterEventArgs e)
@@ -177,6 +198,12 @@ namespace EQ2CollQuests
             }
             CharQuestItemsCheckListBox.Refresh();
         }
+        private void CharQuestSplitContainer_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            CharQuestListBox.Location = new Point(CharIntroTxtBox.Left, CharIntroTxtBox.Bottom);
+            CharQuestListBox.Height = CharQuestSplitContainer.Panel1.Height - CharIntroTxtBox.Height;
+            CharQuestItemsCheckListBox.Height = CharQuestSplitContainer.Panel2.Height;
+        }
         private void UpdChar_Click(object sender, EventArgs e)
         {
             if (CharListBox.SelectedIndex == -1)
@@ -202,19 +229,6 @@ namespace EQ2CollQuests
                     CharGetAllQuests(newChar);
                     Refresh();
                 }
-            }
-        }
-        private void UpdChar_Paint(object sender, PaintEventArgs e)
-        {
-            if (CharListBox.SelectedItem == null)
-            {
-                UpdChar.Enabled = false;
-                DelChar.Enabled = false;
-            }
-            else
-            {
-                UpdChar.Enabled = CharListBox.SelectedItem.GetType() == typeof(Characters);
-                DelChar.Enabled = CharListBox.SelectedItem.GetType() == typeof(Characters);
             }
         }
     }

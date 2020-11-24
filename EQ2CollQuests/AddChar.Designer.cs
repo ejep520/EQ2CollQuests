@@ -54,7 +54,7 @@
             this.AddCharTabControl.Location = new System.Drawing.Point(0, 0);
             this.AddCharTabControl.Name = "AddCharTabControl";
             this.AddCharTabControl.SelectedIndex = 0;
-            this.AddCharTabControl.Size = new System.Drawing.Size(800, 450);
+            this.AddCharTabControl.Size = new System.Drawing.Size(227, 199);
             this.AddCharTabControl.TabIndex = 0;
             // 
             // AddCharByID
@@ -67,7 +67,7 @@
             this.AddCharByID.Location = new System.Drawing.Point(4, 22);
             this.AddCharByID.Name = "AddCharByID";
             this.AddCharByID.Padding = new System.Windows.Forms.Padding(3);
-            this.AddCharByID.Size = new System.Drawing.Size(792, 424);
+            this.AddCharByID.Size = new System.Drawing.Size(219, 173);
             this.AddCharByID.TabIndex = 0;
             this.AddCharByID.Text = "Use ID Number";
             this.AddCharByID.UseVisualStyleBackColor = true;
@@ -105,10 +105,10 @@
             this.AddCharIDMTB.Location = new System.Drawing.Point(3, 6);
             this.AddCharIDMTB.Mask = "000000000000000";
             this.AddCharIDMTB.Name = "AddCharIDMTB";
+            this.AddCharIDMTB.PromptChar = ' ';
             this.AddCharIDMTB.Size = new System.Drawing.Size(111, 20);
             this.AddCharIDMTB.TabIndex = 0;
             this.AddCharIDMTB.TypeValidationCompleted += new System.Windows.Forms.TypeValidationEventHandler(this.AddCharIDMTB_TypeValidationCompleted);
-            this.AddCharIDMTB.Enter += new System.EventHandler(this.AddCharIDMTB_Enter);
             // 
             // AddCharIDBttn
             // 
@@ -130,7 +130,7 @@
             this.AddCharByName.Location = new System.Drawing.Point(4, 22);
             this.AddCharByName.Name = "AddCharByName";
             this.AddCharByName.Padding = new System.Windows.Forms.Padding(3);
-            this.AddCharByName.Size = new System.Drawing.Size(792, 424);
+            this.AddCharByName.Size = new System.Drawing.Size(219, 179);
             this.AddCharByName.TabIndex = 1;
             this.AddCharByName.Text = "Search By Name";
             this.AddCharByName.UseVisualStyleBackColor = true;
@@ -139,35 +139,38 @@
             // AddCharNameKeyTB
             // 
             this.AddCharNameKeyTB.CausesValidation = false;
-            this.AddCharNameKeyTB.Location = new System.Drawing.Point(6, 8);
+            this.AddCharNameKeyTB.Location = new System.Drawing.Point(3, 6);
             this.AddCharNameKeyTB.Name = "AddCharNameKeyTB";
             this.AddCharNameKeyTB.Size = new System.Drawing.Size(110, 20);
             this.AddCharNameKeyTB.TabIndex = 10;
             this.AddCharNameKeyTB.Text = "Character\'s Name";
             this.AddCharNameKeyTB.GotFocus += new System.EventHandler(this.AddCharNameKeyTB_GotFocus);
+            this.AddCharNameKeyTB.Leave += new System.EventHandler(this.AddCharNameKeyTB_Leave);
             // 
             // AddCharNameReset
             // 
-            this.AddCharNameReset.Location = new System.Drawing.Point(123, 149);
+            this.AddCharNameReset.Location = new System.Drawing.Point(120, 149);
             this.AddCharNameReset.Name = "AddCharNameReset";
             this.AddCharNameReset.Size = new System.Drawing.Size(81, 21);
             this.AddCharNameReset.TabIndex = 9;
             this.AddCharNameReset.Text = "Reset";
             this.AddCharNameReset.UseVisualStyleBackColor = true;
+            this.AddCharNameReset.Click += new System.EventHandler(this.AddCharNameReset_Click);
             // 
             // AddCharNameConfirm
             // 
-            this.AddCharNameConfirm.Location = new System.Drawing.Point(6, 148);
+            this.AddCharNameConfirm.Location = new System.Drawing.Point(3, 148);
             this.AddCharNameConfirm.Name = "AddCharNameConfirm";
             this.AddCharNameConfirm.Size = new System.Drawing.Size(111, 22);
             this.AddCharNameConfirm.TabIndex = 8;
             this.AddCharNameConfirm.Text = "Confirm";
             this.AddCharNameConfirm.UseVisualStyleBackColor = true;
+            this.AddCharNameConfirm.Click += new System.EventHandler(this.AddCharNameCofirm_Click);
             // 
             // AddCharNameSearchRsltsLB
             // 
             this.AddCharNameSearchRsltsLB.FormattingEnabled = true;
-            this.AddCharNameSearchRsltsLB.Location = new System.Drawing.Point(6, 60);
+            this.AddCharNameSearchRsltsLB.Location = new System.Drawing.Point(3, 60);
             this.AddCharNameSearchRsltsLB.Name = "AddCharNameSearchRsltsLB";
             this.AddCharNameSearchRsltsLB.Size = new System.Drawing.Size(198, 82);
             this.AddCharNameSearchRsltsLB.Sorted = true;
@@ -175,7 +178,7 @@
             // 
             // AddCharSearchNameBtn
             // 
-            this.AddCharSearchNameBtn.Location = new System.Drawing.Point(6, 32);
+            this.AddCharSearchNameBtn.Location = new System.Drawing.Point(3, 32);
             this.AddCharSearchNameBtn.Name = "AddCharSearchNameBtn";
             this.AddCharSearchNameBtn.Size = new System.Drawing.Size(111, 22);
             this.AddCharSearchNameBtn.TabIndex = 6;
@@ -187,8 +190,11 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(227, 199);
             this.Controls.Add(this.AddCharTabControl);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "AddCharForm";
             this.Text = "Add A Character";
             this.AddCharTabControl.ResumeLayout(false);
