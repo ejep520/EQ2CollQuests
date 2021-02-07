@@ -31,6 +31,10 @@ namespace EQ2CollQuests
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.AddQuestIDPage = new System.Windows.Forms.TabPage();
+            this.AddQuestIDConfirmAdd = new System.Windows.Forms.Button();
+            this.AddQuestIDResultsLB = new System.Windows.Forms.ListBox();
+            this.AddQuestIDResetBtn = new System.Windows.Forms.Button();
+            this.AddQuestIDSearch = new System.Windows.Forms.Button();
             this.AddQuestIDMTB = new System.Windows.Forms.MaskedTextBox();
             this.AddQuestByNamePage = new System.Windows.Forms.TabPage();
             this.AddQuestNameConfirmBtn = new System.Windows.Forms.Button();
@@ -38,10 +42,6 @@ namespace EQ2CollQuests
             this.AddQuestNameResetBtn = new System.Windows.Forms.Button();
             this.AddQuestNameSearchBtn = new System.Windows.Forms.Button();
             this.AddQuestNameTB = new System.Windows.Forms.TextBox();
-            this.AddQuestIDSearch = new System.Windows.Forms.Button();
-            this.AddQuestIDResetBtn = new System.Windows.Forms.Button();
-            this.AddQuestIDResultsLB = new System.Windows.Forms.ListBox();
-            this.AddQuestIDConfirmAdd = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.AddQuestIDPage.SuspendLayout();
             this.AddQuestByNamePage.SuspendLayout();
@@ -73,15 +73,54 @@ namespace EQ2CollQuests
             this.AddQuestIDPage.Text = "Daybreak ID";
             this.AddQuestIDPage.ToolTipText = "Add a quest using the Daybreak ID number";
             // 
+            // AddQuestIDConfirmAdd
+            // 
+            this.AddQuestIDConfirmAdd.Location = new System.Drawing.Point(5, 176);
+            this.AddQuestIDConfirmAdd.Name = "AddQuestIDConfirmAdd";
+            this.AddQuestIDConfirmAdd.Size = new System.Drawing.Size(317, 26);
+            this.AddQuestIDConfirmAdd.TabIndex = 4;
+            this.AddQuestIDConfirmAdd.Text = "Add Quest";
+            this.AddQuestIDConfirmAdd.UseVisualStyleBackColor = true;
+            this.AddQuestIDConfirmAdd.Click += new System.EventHandler(this.AddQuestIDConfirmAdd_Click);
+            // 
+            // AddQuestIDResultsLB
+            // 
+            this.AddQuestIDResultsLB.FormattingEnabled = true;
+            this.AddQuestIDResultsLB.Location = new System.Drawing.Point(5, 62);
+            this.AddQuestIDResultsLB.Name = "AddQuestIDResultsLB";
+            this.AddQuestIDResultsLB.Size = new System.Drawing.Size(317, 108);
+            this.AddQuestIDResultsLB.TabIndex = 3;
+            // 
+            // AddQuestIDResetBtn
+            // 
+            this.AddQuestIDResetBtn.Location = new System.Drawing.Point(92, 31);
+            this.AddQuestIDResetBtn.Name = "AddQuestIDResetBtn";
+            this.AddQuestIDResetBtn.Size = new System.Drawing.Size(81, 21);
+            this.AddQuestIDResetBtn.TabIndex = 2;
+            this.AddQuestIDResetBtn.Text = "Reset";
+            this.AddQuestIDResetBtn.UseVisualStyleBackColor = true;
+            this.AddQuestIDResetBtn.Click += new System.EventHandler(this.AddQuestIDResetBtn_Click);
+            // 
+            // AddQuestIDSearch
+            // 
+            this.AddQuestIDSearch.Location = new System.Drawing.Point(5, 31);
+            this.AddQuestIDSearch.Name = "AddQuestIDSearch";
+            this.AddQuestIDSearch.Size = new System.Drawing.Size(81, 21);
+            this.AddQuestIDSearch.TabIndex = 1;
+            this.AddQuestIDSearch.Text = "Find";
+            this.AddQuestIDSearch.UseVisualStyleBackColor = true;
+            this.AddQuestIDSearch.Click += new System.EventHandler(this.AddQuestIDSearch_Click);
+            // 
             // AddQuestIDMTB
             // 
             this.AddQuestIDMTB.Location = new System.Drawing.Point(5, 5);
-            this.AddQuestIDMTB.Mask = "9999999999990";
             this.AddQuestIDMTB.Name = "AddQuestIDMTB";
             this.AddQuestIDMTB.PromptChar = ' ';
             this.AddQuestIDMTB.Size = new System.Drawing.Size(168, 20);
             this.AddQuestIDMTB.TabIndex = 0;
             this.AddQuestIDMTB.ValidatingType = typeof(long);
+            this.AddQuestIDMTB.TypeValidationCompleted += new System.Windows.Forms.TypeValidationEventHandler(this.AddQuestIDMTB_TypeValidationCompleted);
+            this.AddQuestIDMTB.TextChanged += new System.EventHandler(this.AddQuestIDMTB_TextChanged);
             // 
             // AddQuestByNamePage
             // 
@@ -100,11 +139,11 @@ namespace EQ2CollQuests
             // 
             // AddQuestNameConfirmBtn
             // 
-            this.AddQuestNameConfirmBtn.Location = new System.Drawing.Point(7, 178);
+            this.AddQuestNameConfirmBtn.Location = new System.Drawing.Point(5, 176);
             this.AddQuestNameConfirmBtn.Name = "AddQuestNameConfirmBtn";
-            this.AddQuestNameConfirmBtn.Size = new System.Drawing.Size(314, 26);
+            this.AddQuestNameConfirmBtn.Size = new System.Drawing.Size(317, 26);
             this.AddQuestNameConfirmBtn.TabIndex = 4;
-            this.AddQuestNameConfirmBtn.Text = "Confirm";
+            this.AddQuestNameConfirmBtn.Text = "Add Quest";
             this.AddQuestNameConfirmBtn.UseVisualStyleBackColor = true;
             this.AddQuestNameConfirmBtn.Visible = false;
             this.AddQuestNameConfirmBtn.Click += new System.EventHandler(this.AddQuestNameConfirmBtn_Click);
@@ -112,17 +151,17 @@ namespace EQ2CollQuests
             // AddQuestNameResultsLB
             // 
             this.AddQuestNameResultsLB.FormattingEnabled = true;
-            this.AddQuestNameResultsLB.Location = new System.Drawing.Point(8, 64);
+            this.AddQuestNameResultsLB.Location = new System.Drawing.Point(5, 62);
             this.AddQuestNameResultsLB.Name = "AddQuestNameResultsLB";
-            this.AddQuestNameResultsLB.Size = new System.Drawing.Size(314, 108);
+            this.AddQuestNameResultsLB.Size = new System.Drawing.Size(317, 108);
             this.AddQuestNameResultsLB.TabIndex = 3;
             this.AddQuestNameResultsLB.Visible = false;
             // 
             // AddQuestNameResetBtn
             // 
-            this.AddQuestNameResetBtn.Location = new System.Drawing.Point(88, 35);
+            this.AddQuestNameResetBtn.Location = new System.Drawing.Point(92, 31);
             this.AddQuestNameResetBtn.Name = "AddQuestNameResetBtn";
-            this.AddQuestNameResetBtn.Size = new System.Drawing.Size(86, 22);
+            this.AddQuestNameResetBtn.Size = new System.Drawing.Size(81, 21);
             this.AddQuestNameResetBtn.TabIndex = 2;
             this.AddQuestNameResetBtn.Text = "Reset";
             this.AddQuestNameResetBtn.UseVisualStyleBackColor = true;
@@ -130,9 +169,9 @@ namespace EQ2CollQuests
             // 
             // AddQuestNameSearchBtn
             // 
-            this.AddQuestNameSearchBtn.Location = new System.Drawing.Point(7, 35);
+            this.AddQuestNameSearchBtn.Location = new System.Drawing.Point(5, 31);
             this.AddQuestNameSearchBtn.Name = "AddQuestNameSearchBtn";
-            this.AddQuestNameSearchBtn.Size = new System.Drawing.Size(75, 22);
+            this.AddQuestNameSearchBtn.Size = new System.Drawing.Size(81, 21);
             this.AddQuestNameSearchBtn.TabIndex = 1;
             this.AddQuestNameSearchBtn.Text = "Find";
             this.AddQuestNameSearchBtn.UseVisualStyleBackColor = true;
@@ -140,47 +179,10 @@ namespace EQ2CollQuests
             // 
             // AddQuestNameTB
             // 
-            this.AddQuestNameTB.Location = new System.Drawing.Point(6, 6);
+            this.AddQuestNameTB.Location = new System.Drawing.Point(5, 5);
             this.AddQuestNameTB.Name = "AddQuestNameTB";
             this.AddQuestNameTB.Size = new System.Drawing.Size(168, 20);
             this.AddQuestNameTB.TabIndex = 0;
-            // 
-            // AddQuestIDSearch
-            // 
-            this.AddQuestIDSearch.Location = new System.Drawing.Point(5, 31);
-            this.AddQuestIDSearch.Name = "AddQuestIDSearch";
-            this.AddQuestIDSearch.Size = new System.Drawing.Size(81, 21);
-            this.AddQuestIDSearch.TabIndex = 1;
-            this.AddQuestIDSearch.Text = "Find";
-            this.AddQuestIDSearch.UseVisualStyleBackColor = true;
-            // 
-            // AddQuestIDResetBtn
-            // 
-            this.AddQuestIDResetBtn.Location = new System.Drawing.Point(92, 31);
-            this.AddQuestIDResetBtn.Name = "AddQuestIDResetBtn";
-            this.AddQuestIDResetBtn.Size = new System.Drawing.Size(81, 21);
-            this.AddQuestIDResetBtn.TabIndex = 2;
-            this.AddQuestIDResetBtn.Text = "Reset";
-            this.AddQuestIDResetBtn.UseVisualStyleBackColor = true;
-            this.AddQuestIDResetBtn.Click += new System.EventHandler(this.AddQuestIDResetBtn_Click);
-            // 
-            // AddQuestIDResultsLB
-            // 
-            this.AddQuestIDResultsLB.FormattingEnabled = true;
-            this.AddQuestIDResultsLB.Location = new System.Drawing.Point(5, 62);
-            this.AddQuestIDResultsLB.Name = "AddQuestIDResultsLB";
-            this.AddQuestIDResultsLB.Size = new System.Drawing.Size(317, 108);
-            this.AddQuestIDResultsLB.TabIndex = 3;
-            // 
-            // AddQuestIDConfirmAdd
-            // 
-            this.AddQuestIDConfirmAdd.Location = new System.Drawing.Point(5, 176);
-            this.AddQuestIDConfirmAdd.Name = "AddQuestIDConfirmAdd";
-            this.AddQuestIDConfirmAdd.Size = new System.Drawing.Size(317, 26);
-            this.AddQuestIDConfirmAdd.TabIndex = 4;
-            this.AddQuestIDConfirmAdd.Text = "Add Quest";
-            this.AddQuestIDConfirmAdd.UseVisualStyleBackColor = true;
-            this.AddQuestIDConfirmAdd.Click += new System.EventHandler(this.AddQuestIDConfirmAdd_Click);
             // 
             // AddQuest
             // 
@@ -196,6 +198,7 @@ namespace EQ2CollQuests
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Add a Quest";
             this.TopMost = true;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AddQuest_FormClosing);
             this.tabControl1.ResumeLayout(false);
             this.AddQuestIDPage.ResumeLayout(false);
             this.AddQuestIDPage.PerformLayout();

@@ -1,15 +1,93 @@
 ﻿using System;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace EQ2CollQuests
 {
     public class QuestItem : IComparable<QuestItem>
     {
+        public enum ItemsStaticLocValues
+        {
+            RandomLoc = 0,
+            ZoneSpec = 1,
+            LocSpec = 2,
+            FixedLoc = ItemsStaticLocValues.ZoneSpec | ItemsStaticLocValues.LocSpec
+        }
         public string ItemName;
         public long DaybreakID;
         public short ItemLvl;
         public bool LoreFlag, NoTradeFlag;
-        /// <summary>This is a do-nothing constructor. Plz do not use it.</summary>
+        [XmlIgnore] private double? _LocX, _LocY, _LocZ;
+        [XmlIgnore] private ItemsStaticLocValues _StaticLoc;
+        [XmlIgnore] private string _ZoneName = string.Empty;
+        /// <value>
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <term>0</term>
+        ///             <description>Loc and Zone disabled</description>
+        ///         </item>
+        ///         <item>
+        ///             <term>1</term>
+        ///             <description>Zone enabled</description>
+        ///         </item>
+        ///         <item>
+        ///             <term>2</term>
+        ///             <description>Loc enabled</description>
+        ///         </item>
+        ///         <item>
+        ///             <term>3</term>
+        ///             <description>Loc and Zone enabled</description>
+        ///         </item>
+        ///     </list>
+        /// </value>
+        public ItemsStaticLocValues StaticLoc
+        {
+            get { return _StaticLoc; }
+            set
+            {
+                if (value == _StaticLoc)
+                    return;
+                switch (value)
+                {
+                    case ItemsStaticLocValues.RandomLoc:
+                        ZoneName = string.Empty;
+                        LocX = null;
+                        LocY = null;
+                        LocZ = null;
+                        break;
+                    case ItemsStaticLocValues.ZoneSpec:
+                        LocX = null;
+                        LocY = null;
+                        LocZ = null;
+                        break;
+                    case ItemsStaticLocValues.LocSpec:
+                        ZoneName = string.Empty;
+                        break;
+                }
+                _StaticLoc = value;
+            }
+        }
+        public double? LocX
+        {
+            get { return _LocX; }
+            set { _LocX = Convert.ToBoolean(StaticLoc & ItemsStaticLocValues.LocSpec) ? value : null; }
+        }
+        public double? LocY
+        {
+            get { return _LocY; }
+            set { _LocY = Convert.ToBoolean(StaticLoc & ItemsStaticLocValues.LocSpec) ? value : null; }
+        }
+        public double? LocZ
+        {
+            get { return _LocZ; }
+            set { _LocZ = Convert.ToBoolean(StaticLoc & ItemsStaticLocValues.LocSpec) ? value : null; }
+        }
+        public string ZoneName
+        {
+            get { return _ZoneName; }
+            set { _ZoneName = Convert.ToBoolean(StaticLoc & ItemsStaticLocValues.ZoneSpec) ? value : string.Empty; }
+        }
+        /// <summary>This is a do-nothing constructor. Please do not use it.</summary>
         public QuestItem()
         {
             ItemName = string.Empty;
@@ -17,6 +95,7 @@ namespace EQ2CollQuests
             ItemLvl = 0;
             LoreFlag = false;
             NoTradeFlag = false;
+            StaticLoc = 0;
         }
         /// <summary>This is the active constructor. Use this.</summary>
         /// <param name="name">The name of the new item.</param>
@@ -32,6 +111,9 @@ namespace EQ2CollQuests
             this.LoreFlag = LoreFlag;
             this.NoTradeFlag = NoTradeFlag;
         }
+        /// <summary> Constructor for a new quest item. </summary>
+        /// <param name="DaybreakID">The unique Daybreak ID number of the item being added.</param>
+        /// <exception cref="Exception">If the wrong XML element is passed by this code, supporting code will throw an Exception.</exception>
         public QuestItem(long DaybreakID)
         {
             XDocument xDocument = Program.GetThisURL(string.Concat(@"item/?c:show=displayname,id,itemlevel,",
@@ -62,7 +144,11 @@ namespace EQ2CollQuests
         #endregion
         public override string ToString()
         {
-            return ItemName;
+            if (Convert.ToBoolean(StaticLoc))
+                return $"{ItemName}*";
+            else
+                return ItemName;
         }
+        
     }
 }

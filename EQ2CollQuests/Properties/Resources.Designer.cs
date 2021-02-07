@@ -112,5 +112,68 @@ namespace EQ2CollQuests.Properties {
                 return ResourceManager.GetString("ExpertMultExpl", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
+        ///&lt;html lang=&quot;en-US&quot;&gt;
+        ///&lt;head&gt;
+        ///&lt;title&gt;Items Page&lt;/title&gt;
+        ///&lt;meta charset=&quot;UTF-8&quot;&gt;
+        ///&lt;meta name=&quot;Author&quot; content=&quot;Erik Jepsen &lt;erik@jepster.com&gt;&quot;&gt;
+        ///&lt;meta name=&quot;Created&quot; content=&quot;2020-12-14T10:08Z-8&quot;&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///&lt;h1&gt;Items Page&lt;/h1&gt;
+        ///&lt;p&gt;The items page is split between two general areas, the list of items and the information available for a selected item.&lt;/p&gt;
+        ///&lt;h2&gt;Item List&lt;/h2&gt;
+        ///&lt;p&gt;This list contains the items currently downloaded to your machine. In testing, this list exceeded 5,000 items. [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ItemsPage {
+            get {
+                return ResourceManager.GetString("ItemsPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
+        ///&lt;html lang=&quot;en-US&quot;&gt;
+        ///&lt;head&gt;
+        ///&lt;title&gt;Quests Page&lt;/title&gt;
+        ///&lt;meta charset=&quot;UTF-8&quot;&gt;
+        ///&lt;meta name=&quot;Author&quot; content=&quot;Erik Jepsen &lt;erik@jepster.com&gt;&quot;&gt;
+        ///&lt;meta name=&quot;Created&quot; content=&quot;2020-12-14T09:28Z-8&quot;&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///&lt;h1&gt;Quests&lt;/h1&gt;
+        ///&lt;p&gt;The quests page is divied up into three sections. On the left-hand column is a list of all the quests currently downloaded to your machine. The right-hand
+        ///side is split between the information pane at the top and a tree of items underneath.&lt;/p&gt;
+        ///&lt;h2&gt;Quest List [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string QuestsPage {
+            get {
+                return ResourceManager.GetString("QuestsPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
+        ///&lt;html lang=&quot;en-US&quot;&gt;
+        ///&lt;head&gt;
+        ///&lt;title&gt;Settings Page&lt;/title&gt;
+        ///&lt;meta charset=&quot;UTF-8&quot;&gt;
+        ///&lt;meta name=&quot;Author&quot; content=&quot;Erik Jepsen &lt;erik@jepster.com&gt;&quot;&gt;
+        ///&lt;meta name=&quot;Created&quot; content=&quot;2020-12-14T10:39Z-8&quot;&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///&lt;h1&gt;Settings Page&lt;/h1&gt;
+        ///&lt;h2&gt;The Settings&lt;/h2&gt;
+        ///&lt;dl&gt;&lt;dt&gt;Go Online?&lt;/dt&gt;&lt;dd&gt;This (will eventually) control whether new items may be downloaded. Currently it is strictly decorative. Eventually, it will be useful
+        ///if you are on a capped or otherwise limited connection. &lt;b&gt;Not curren [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SettingsPage {
+            get {
+                return ResourceManager.GetString("SettingsPage", resourceCulture);
+            }
+        }
     }
 }

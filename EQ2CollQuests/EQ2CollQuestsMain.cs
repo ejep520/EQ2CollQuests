@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
@@ -16,8 +19,13 @@ namespace EQ2CollQuests
             public short Key;
             public string Value;
         }
+        public struct ServerEntry
+        {
+            public short ServerID;
+            public string ServerName;
+        }
         /// <value>The multiplier on need for items in &quot;Expert&quot; collections.</value>
-        private double ExpertMult
+        internal double ExpertMult
         {
             get => _ExpertMult;
             set
@@ -46,7 +54,7 @@ namespace EQ2CollQuests
         ///         </item>
         ///     </list>
         /// </value>
-        private bool GoOnline
+        internal bool GoOnline
         {
             get { return _GoOnline; }
             set
@@ -73,7 +81,7 @@ namespace EQ2CollQuests
         ///         </item>
         ///     </list>
         /// </value>
-        private bool IndentXml
+        internal bool IndentXml
         {
             get { return _IndentXml; }
             set
@@ -95,7 +103,22 @@ namespace EQ2CollQuests
                 }
             }
         }
-        private bool _GoOnline = true, _IndentXml = true;
+        internal bool HideCompletedOnChar
+        {
+            get => _HideCompletedOnChar;
+            set
+            {
+                if (value == _HideCompletedOnChar)
+                    return;
+                if (value ^ _HideCompletedOnChar)
+                {
+                    dirties[1] = true;
+                    UpdateDirtiesStatus();
+                    _HideCompletedOnChar = value;
+                }
+            }
+        }
+        private bool _GoOnline = true, _IndentXml = true, _HideCompletedOnChar = false;
         private double _ExpertMult = 1.5;
         /// <summary>Dirty Flags</summary>
         /// <value>
@@ -172,24 +195,78 @@ namespace EQ2CollQuests
                 Program.itemList.Clear();
                 Program.questList.Clear();
             }
-            if (Program.AdvClasses.Count == 0)
+            if ((Program.AdvClasses.Count == 0) && (Program.serverList.Count == 0))
             {
                 GetConstants();
                 dirties[1] = true;
-                StatusStripDirtyIndicator.Text = FloppyString;
+                UpdateDirtiesStatus();
+            }
+            else if (Program.AdvClasses.Count == 0)
+            {
+                GetAdvClasses();
+                dirties[1] = true;
+                UpdateDirtiesStatus();
+            }
+            else if (Program.serverList.Count == 0)
+            {
+                GetServers();
+                dirties[1] = true;
+                UpdateDirtiesStatus();
             }
             characterPageToolStripMenuItem.Checked = true;
             TabControlStrip1.SelectedTab = CharacterPage;
-            StatusStripDirtyIndicator.Text = string.Empty;
+            UpdateDirtiesStatus();
             UpdChar.Enabled = false;
             DelChar.Enabled = false;
+            ItemsEQ2iLink.Links.Clear();
+            ItemsEQ2iLink.Links.Add(0, 4);
+            ItemsEQ2iLink.Links.Add(7, 4);
+            ItemsEQ2iLink.Links[0].Enabled = false;
+            ItemsEQ2iLink.Links[1].Enabled = false;
+            QuestsLinkLabel.Links.Clear();
+            QuestsLinkLabel.Links.Add(0, 4);
+            QuestsLinkLabel.Links.Add(7, 4);
+            QuestsLinkLabel.Links[0].Enabled = false;
+            QuestsLinkLabel.Links[1].Enabled = false;
         }
         ~EQ2CollQuestsMain() { }
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _ = MessageBox.Show("EQ2 Collections Manager\nWritten by Erik Jepsen <erik@jepster.com>\n2020-10-25",
-                "About",
-                MessageBoxButtons.OK);
+            _ = new AboutForm().ShowDialog(this);
+        }
+        private void AllItemsPresentCheck()
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            List<long> MissingItems = new List<long>();
+            ConcurrentBag<QuestItem> FoundItems = new ConcurrentBag<QuestItem>();
+            foreach (CollQuest ThisQuest in Program.questList.Values)
+            {
+                foreach (long ThisItem in ThisQuest.items)
+                {
+                    if (Program.itemList.ContainsKey(ThisItem))
+                        continue;
+                    else
+                        MissingItems.Add(ThisItem);
+                }
+            }
+            if (Convert.ToBoolean(MissingItems.Count))
+            {
+                Parallel.ForEach(MissingItems, MissedItem =>
+                {
+                    try { FoundItems.Add(new QuestItem(MissedItem)); }
+                    catch (Exception Err)
+                    {
+                        BadEnd();
+                        throw Err;
+                    }
+                });
+                foreach (QuestItem ThisItem in FoundItems)
+                    Program.itemList[ThisItem.DaybreakID] = ThisItem;
+                dirties[2] = true;
+                StatusStripDirtyIndicator.Text = FloppyString;
+            }
+            Cursor.Current = Cursors.Default;
+            _ = (short)0;
         }
         /// <summary>
         ///     <para>
@@ -199,13 +276,19 @@ namespace EQ2CollQuests
         /// </summary>
         public void BadEnd()
         {
+            SaveData();
             for (int counter = 0; counter < 4; counter++)
             {
-                if (File.Exists(AllTemp[counter]))
+                if (File.Exists(AllTemp[counter]) && (new FileInfo(AllTemp[counter]).Length > 0))
                 {
                     if (File.Exists(AllBad[counter]))
                         File.Delete(AllBad[counter]);
-                    File.Move(AllTemp[counter], AllBad[counter]);
+                    if (new FileInfo(AllTemp[counter]).Length > 0)
+                        File.Move(AllTemp[counter], AllBad[counter]);
+                }
+                else if (File.Exists(AllTemp[counter]) && (new FileInfo(AllTemp[counter]).Length == 0))
+                {
+                    File.Delete(AllTemp[counter]);
                 }
             }
         }
@@ -267,6 +350,18 @@ namespace EQ2CollQuests
                     File.Delete(AllTemp[counter]);
             }
         }
+        private void EQ2CollQuestsMain_Enter(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(PlayingAsComboBox.Text))
+                PlayingAsComboBox.Text = "Playing as...";
+            if (Cursor.Current == null)
+                Cursor.Current = Cursors.Default;
+        }
+        private void EQ2CollQuestsMain_MouseEnter(object sender, EventArgs e)
+        {
+            if (Cursor.Current == null)
+                Cursor.Current = Cursors.Default;
+        }
         private void EQ2CollQuestsMain_Resize(object sender, EventArgs e)
         {
             TabControlStrip1.Location = new Point(menuStrip1.Left, menuStrip1.Bottom);
@@ -280,7 +375,7 @@ namespace EQ2CollQuests
         /// Gets the maximum adventure level and dictionary of adventure classes from the
         /// Daybreak Games Census server.
         /// </summary>
-        private void GetConstants()
+        private void GetAdvClasses()
         {
             XDocument ConstDoc = Program.GetThisURL(@"constants/?c:show=maxadventurelevel,adventureclass_list");
             XElement ConstElem = ConstDoc.Root.Element("constants");
@@ -293,10 +388,31 @@ namespace EQ2CollQuests
                 Program.AdvClasses[short.Parse(thisClass.Attribute("id").Value)] = ClassName;
             }
         }
-        /// <summary>
-        /// Attempts to load data from &quot;My Documents&quot; and
-        /// &quot;&lt;user&gt;\appdata\local\EQ2CollQuests&quot;
-        /// </summary>
+        private void GetConstants()
+        {
+            GetAdvClasses();
+            GetServers();
+        }
+        private void GetServers()
+        {
+            int BigEnufQ = 25;
+            XDocument WorldsDoc;
+            XElement WorldListElem;
+            do
+            {
+                BigEnufQ *= 2;
+                WorldsDoc = Program.GetThisURL(string.Concat(@"world/?c:limit=", BigEnufQ.ToString(), @"&c:show=name,id"));
+                WorldListElem = WorldsDoc.Root;
+            } while (WorldListElem.Elements("world").ToList().Count == BigEnufQ);
+            string WorldName;
+            short WorldID;
+            foreach (XElement ThisWorld in WorldListElem.Elements("world"))
+            {
+                WorldID = short.Parse(ThisWorld.Attribute("id").Value);
+                WorldName = ThisWorld.Attribute("name").Value;
+                Program.serverList[WorldID] = WorldName;
+            }
+        }
         private void HelpToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             Help.ShowHelp(this, Program.HelpMain);
@@ -305,6 +421,7 @@ namespace EQ2CollQuests
         {
             TabControlStrip1.SelectedTab = ItemsPage;
         }
+        /// <summary>Attempts to load data from &quot;My Documents&quot; and &quot;&lt;user&gt;\appdata\local\EQ2CollQuests&quot;</summary>
         private void LoadData()
         {
             DialogResult ReplaceMissingFile;
@@ -348,48 +465,57 @@ namespace EQ2CollQuests
                     case 0:
                         xmlSerializer = new XmlSerializer(typeof(List<Characters>));
                         List<Characters> InChars = (List<Characters>)xmlSerializer.Deserialize(InStream);
-                        Program.charList.AddRange(InChars);
-                        Program.charList.Sort();
                         InStream.Dispose();
+                        foreach (Characters ThisChar in InChars)
+                            Program.charList[ThisChar.DaybreakID] = ThisChar;
                         break;
                     case 1:
                         Type[] types = { typeof(double), typeof(bool), typeof(short),
-                            typeof(List<AdvKeyEntry>) };
+                            typeof(List<AdvKeyEntry>), typeof(List<ServerEntry>) };
                         XmlSerializer[] serializers = XmlSerializer.FromTypes(types);
                         XmlReader xmlReader = XmlReader.Create(InStream);
                         xmlReader.MoveToContent();
                         xmlReader.ReadStartElement("Root");
-                        ExpertMult = (double)serializers[0].Deserialize(xmlReader);
-                        GoOnline = (bool)serializers[1].Deserialize(xmlReader);
-                        IndentXml = (bool)serializers[1].Deserialize(xmlReader);
+                        _ExpertMult = (double)serializers[0].Deserialize(xmlReader);
+                        _GoOnline = (bool)serializers[1].Deserialize(xmlReader);
+                        _IndentXml = (bool)serializers[1].Deserialize(xmlReader);
+                        try { _HideCompletedOnChar = (bool)serializers[1].Deserialize(xmlReader); }
+                        catch (InvalidOperationException) { dirties[1] = true; }
                         MaxAdvLvl = (short)serializers[2].Deserialize(xmlReader);
                         List<AdvKeyEntry> TempKeys = (List<AdvKeyEntry>)serializers[3].Deserialize(xmlReader);
+                        List<ServerEntry> TempServers = (List<ServerEntry>)serializers[4].Deserialize(xmlReader);
                         foreach (AdvKeyEntry thisEntry in TempKeys)
                             Program.AdvClasses[thisEntry.Key] = thisEntry.Value;
+                        if (TempServers == null)
+                            GetServers();
+                        else
+                        {
+                            foreach (ServerEntry thisEntry in TempServers)
+                                Program.serverList[thisEntry.ServerID] = thisEntry.ServerName;
+                        }
                         xmlReader.Dispose();
                         InStream.Dispose();
                         break;
                     case 2:
                         xmlSerializer = new XmlSerializer(typeof(List<QuestItem>));
-                        Program.itemList.AddRange((List<QuestItem>)xmlSerializer.Deserialize(InStream));
-                        Program.itemList.Sort();
+                        List<QuestItem> InItems = (List<QuestItem>)xmlSerializer.Deserialize(InStream);
                         InStream.Dispose();
+                        foreach (QuestItem ThisItem in InItems)
+                            Program.itemList[ThisItem.DaybreakID] = ThisItem;
                         break;
                     case 3:
                         xmlSerializer = new XmlSerializer(typeof(List<CollQuest>));
-                        Program.questList.AddRange((List<CollQuest>)xmlSerializer.Deserialize(InStream));
-                        Program.questList.Sort();
+                        List<CollQuest> InQuests = (List<CollQuest>)xmlSerializer.Deserialize(InStream);
                         InStream.Dispose();
+                        foreach (CollQuest ThisQuest in InQuests)
+                            Program.questList[ThisQuest.DaybreakID] = ThisQuest;
                         break;
                     default:
                         break;
                 }
             }
-            dirties[1] = false;
-            if (dirties[0] || dirties[2] || dirties[3])
-                StatusStripDirtyIndicator.Text = FloppyString;
-            else
-                StatusStripDirtyIndicator.Text = string.Empty;
+            UpdateDirtiesStatus();
+            AllItemsPresentCheck();
         }
         private void PasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -414,12 +540,31 @@ namespace EQ2CollQuests
                 }
             }
         }
+        private void PlayingAsComboBox_Leave(object sender, EventArgs e)
+        {
+            PlayingAsComboBox.Text = "Playing as...";
+        }
         private void PlayingAsComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (PlayingAsComboBox.SelectedIndex == -1)
                 return;
             Playing playing = new Playing((PlayingAsComboBox.SelectedItem as Characters).DaybreakID, ExpertMult);
-            _ = playing.ShowDialog();
+            PlayingAsComboBox.Text = (PlayingAsComboBox.SelectedItem as Characters).name;
+            DialogResult PlayResult = playing.ShowDialog();
+            if (PlayResult == DialogResult.OK)
+            {
+                foreach (KeyValuePair<long, Characters> ThisChar in playing.ServerMates)
+                {
+                    Program.charList[ThisChar.Key] = ThisChar.Value;
+                }
+                dirties[0] = true;
+                UpdateDirtiesStatus();
+            }
+            else if (PlayResult == DialogResult.Abort)
+            {
+                BadEnd();
+                throw playing.ReturnedException;
+            }
             SaveData();
             playing.Dispose();
             PlayingAsComboBox.SelectedIndex = -1;
@@ -451,7 +596,7 @@ namespace EQ2CollQuests
             FileStream OutStream = File.Create(Program.TempChar);
             XmlWriter xmlWriter = XmlWriter.Create(OutStream, new XmlWriterSettings() { Indent = IndentXml });
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Characters>));
-            xmlSerializer.Serialize(xmlWriter, Program.charList);
+            xmlSerializer.Serialize(xmlWriter, Program.charList.Values.ToList());
             xmlWriter.Flush();
             OutStream.Flush();
             xmlWriter.Dispose();
@@ -470,7 +615,7 @@ namespace EQ2CollQuests
         ///         </item>
         ///     </list>
         /// </param>
-        private void SaveData(bool CleanSave = false)
+        public void SaveData(bool CleanSave = false)
         {
             SaveChars();
             SaveItems();
@@ -504,7 +649,7 @@ namespace EQ2CollQuests
             FileStream OutStream = File.Create(Program.TempItems);
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<QuestItem>));
             XmlWriter xmlWriter = XmlWriter.Create(OutStream, new XmlWriterSettings() { Indent = IndentXml });
-            xmlSerializer.Serialize(xmlWriter, Program.itemList);
+            xmlSerializer.Serialize(xmlWriter, Program.itemList.Values.ToList());
             xmlWriter.Flush();
             xmlWriter.Dispose();
             OutStream.Flush();
@@ -516,17 +661,22 @@ namespace EQ2CollQuests
             FileStream OutStream = File.Create(Program.TempSetts);
             XmlWriter xmlWriter = XmlWriter.Create(OutStream, new XmlWriterSettings() { Indent = IndentXml });
             List<AdvKeyEntry> TempKeys = new List<AdvKeyEntry>();
+            List<ServerEntry> TempServers = new List<ServerEntry>();
             foreach (KeyValuePair<short, string> thisPair in Program.AdvClasses)
                 TempKeys.Add(new AdvKeyEntry() { Key = thisPair.Key, Value = thisPair.Value });
-            Type[] SerializeThese = { typeof(double), typeof(bool), typeof(short), typeof(List<AdvKeyEntry>) };
+            foreach (KeyValuePair<short, string> thisPair in Program.serverList)
+                TempServers.Add(new ServerEntry() { ServerID = thisPair.Key, ServerName = thisPair.Value });
+            Type[] SerializeThese = { typeof(double), typeof(bool), typeof(short), typeof(List<AdvKeyEntry>), typeof(List<ServerEntry>) };
             XmlSerializer[] xmlSerializers = XmlSerializer.FromTypes(SerializeThese);
             xmlWriter.WriteStartDocument();
             xmlWriter.WriteStartElement("Root");
             xmlSerializers[0].Serialize(xmlWriter, ExpertMult);
             xmlSerializers[1].Serialize(xmlWriter, GoOnline);
             xmlSerializers[1].Serialize(xmlWriter, IndentXml);
+            xmlSerializers[1].Serialize(xmlWriter, HideCompletedOnChar);
             xmlSerializers[2].Serialize(xmlWriter, MaxAdvLvl);
             xmlSerializers[3].Serialize(xmlWriter, TempKeys);
+            xmlSerializers[4].Serialize(xmlWriter, TempServers);
             xmlWriter.WriteFullEndElement();
             xmlWriter.Flush();
             xmlWriter.Dispose();
@@ -543,7 +693,7 @@ namespace EQ2CollQuests
             FileStream OutStream = File.Create(Program.TempQuest);
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<CollQuest>));
             XmlWriter xmlWriter = XmlWriter.Create(OutStream, new XmlWriterSettings() { Indent = IndentXml });
-            xmlSerializer.Serialize(xmlWriter, Program.questList);
+            xmlSerializer.Serialize(xmlWriter, Program.questList.Values.ToList());
             xmlWriter.Flush();
             xmlWriter.Dispose();
             OutStream.Flush();
@@ -564,6 +714,48 @@ namespace EQ2CollQuests
                 else if (!ToolStripItems[counter].Checked && (TabControlStrip1.SelectedTab == TabPages[counter]))
                     ToolStripItems[counter].Checked = true;
             }
+        }
+        private void ItemsEQ2iLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Uri TargetLink;
+            try { TargetLink = new Uri(e.Link.LinkData.ToString()); }
+            catch (UriFormatException) { return; }
+            _ = System.Diagnostics.Process.Start(TargetLink.ToString());
+        }
+        /// <summary> Checks the current state of all dirty flags and sets the status bar accordingly. </summary>
+        internal void UpdateDirtiesStatus()
+        {
+            StatusStripDirtyIndicator.Text = (dirties[0] || dirties[1] || dirties[2] || dirties[3]) ? FloppyString : string.Empty;
+        }
+        private void PlayingAsComboBox_Paint(object sender, PaintEventArgs e)
+        {
+            PlayingAsComboBox_Leave(sender, null);
+        }
+        private void QuestsLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Uri LinkTarget;
+            try { LinkTarget = new Uri(e.Link.LinkData.ToString()); }
+            catch (UriFormatException) { return; }
+            _ = System.Diagnostics.Process.Start(LinkTarget.ToString());
+        }
+        private void ItemsCopyWPLabelLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Clipboard.SetText(e.Link.LinkData.ToString());
+            timer1.Start();
+            ItemsCopiedWPLabel.Visible = true;
+        }
+        private void SettingsExpertMultMTB_TypeValidationCompleted(object sender, TypeValidationEventArgs e)
+        {
+            if (e.IsValidInput)
+            {
+                ExpertMult = (double)e.ReturnValue;
+            }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            timer1.Stop();
+            ItemsCopiedWPLabel.Visible = false;
         }
         private void UndoToolStripMenuItem_Click(object sender, EventArgs e) { }
     }

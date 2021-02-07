@@ -11,6 +11,7 @@ namespace EQ2CollQuests
         public short QuestLvl, ReqAdvLvl;
         public bool ExpertColl;
         public readonly List<long> items = new List<long>();
+        /// <summary> This is a do-nothing constructor. Please do not use it. </summary>
         public CollQuest()
         {
             QuestName = string.Empty;
@@ -20,19 +21,22 @@ namespace EQ2CollQuests
             ReqAdvLvl = 0;
             ExpertColl = false;
         }
-        /// <summary>This is an active constructor taking a List of quest <paramref name="items"/>.</summary>
-        /// <param name="QuestName">The name of the quest.</param>
-        /// <param name="DaybreakID">The unique Daybreak ID number.</param>
-        /// <param name="QuestLvl">The level of the quest.</param>
-        /// <param name="items">The list of item ID numbers.</param>
-        /// <param name="ReqAdvLvl">The minimum required adventure level to begin this quest. 0 if none.</param>
-        /// <param name="ExpertColl">Is this an &quot;Expert&quot; collection quest</param>
+        /// <summary>This is an active constructor taking the Daybreak ID number.</summary>
+        /// <param name="DaybreakID">The unique Daybreak ID number for the new quest.</param>
+        /// <exception cref="Exception">If the Daybreak ID returns more than one collection, this will result in an exception.</exception>
         public CollQuest(long DaybreakID)
         {
             XDocument xDocument = Program.GetThisURL(string.Concat(@"collection/?c:show=category,name,",
                 @"level,id,reference_list&id=", DaybreakID.ToString()));
-            if (short.Parse(xDocument.Root.Attribute("returned").Value) > 1)
+            short FoundNum = short.Parse(xDocument.Root.Attribute("returned").Value);
+            if (FoundNum > 1)
+            {
                 throw new Exception($"More than one quest was found with the ID {DaybreakID}.");
+            }
+            else if (FoundNum == 0)
+            {
+                throw new Exception($"No quests were found with the ID {DaybreakID}.");
+            }
             ParseXmlData(xDocument.Root.Element("collection"));
         }
         private void ParseXmlData(XElement RawColl)
@@ -51,7 +55,7 @@ namespace EQ2CollQuests
             TempCat = RawColl.Attribute("category").Value;
             ExpertColl = TempCat.ToLower().Contains("expert");
             if (TempCat.ToLower().StartsWith("chaos"))
-                ReqAdvLvl = 120;
+                ReqAdvLvl = 110;
             else
                 ReqAdvLvl = 0;
         }

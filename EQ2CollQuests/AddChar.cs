@@ -6,8 +6,24 @@ namespace EQ2CollQuests
 {
     public partial class AddCharForm : Form
     {
+        internal class AddCharResult
+        {
+            public string displayName;
+            public long DaybreakID;
+            public AddCharResult() { }
+            public AddCharResult(string displayName, long DaybreakID)
+            {
+                this.displayName = displayName;
+                this.DaybreakID = DaybreakID;
+            }
+            public override string ToString()
+            {
+                return displayName;
+            }
+        }
         private const string CharName = "Character's Name";
         public Characters NewChar;
+        public Exception ReturnedException;
         public AddCharForm()
         {
             InitializeComponent();
@@ -15,8 +31,8 @@ namespace EQ2CollQuests
         }
         private void AddCharIDMTB_TypeValidationCompleted(object sender, TypeValidationEventArgs e)
         {
-            bool isValidOut = long.TryParse(AddCharIDMTB.Text, out _);
-            AddCharIDBttn.Enabled = isValidOut;
+            AddCharIDBttn.Enabled = e.IsValidInput;
+            AddCharIDBttn.Refresh();
         }
         private void AddCharIDBttn_Click(object sender, EventArgs e)
         {
@@ -27,12 +43,29 @@ namespace EQ2CollQuests
             catch (ArgumentNullException) { return; }
             if (InputtedLong < 1)
                 return;
-            string searchSuffix = string.Concat(@"character/?c:show=displayname,type&id=", AddCharIDMTB.Text);
+            string searchSuffix = string.Concat(@"character/?c:limit=30&c:show=displayname,type&id=", AddCharIDMTB.Text);
             XDocument CharCheck = Program.GetThisURL(searchSuffix);
-            if (CharCheck.Root.Attribute("returned").Value != "1")
+            if (CharCheck.Root.Attribute("returned").Value == "0")
+            {
+                _ = MessageBox.Show($"No characters were found with the Daybreak ID {InputtedLong}.",
+                    "No Characters Found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                AddCharIDResetBtn.PerformClick();
                 return;
+            }
+            else if (CharCheck.Root.Attribute("returned").Value != "1")
+            {
+                _ = MessageBox.Show($"More than one character was found with the Daybreak ID {InputtedLong}.",
+                    "Too Many Characters Found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                AddCharIDResetBtn.PerformClick();
+                return;
+            }
             AddCharSearchResults.Items.Clear();
-            _ = AddCharSearchResults.Items.Add(new Characters(InputtedLong));
+            try { _ = AddCharSearchResults.Items.Add(new Characters(InputtedLong)); }
+            catch (Exception Err)
+            {
+                ReturnedException = Err;
+                DialogResult = DialogResult.Abort;
+            }
             AddCharConfirmBtn.Enabled = true;
             _ = AddCharConfirmBtn.Focus();
         }
@@ -45,9 +78,12 @@ namespace EQ2CollQuests
         }
         private void AddCharConfirmBtn_Click(object sender, EventArgs e)
         {
-            if (AddCharSearchResults.SelectedItem == null)
-                return;
-            if (AddCharSearchResults.SelectedItem is Characters NewChar)
+            if ((AddCharSearchResults.SelectedItem == null) && (AddCharSearchResults.Items.Count > 0))
+            {
+                _ = MessageBox.Show("Please select a character to add and try again.",
+                                    "No Character Selected", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else if (AddCharSearchResults.SelectedItem is Characters NewChar)
             {
                 this.NewChar = NewChar;
                 DialogResult = DialogResult.OK;
@@ -88,48 +124,41 @@ namespace EQ2CollQuests
                 _ = AddCharNameConfirm.Focus();
             }
         }
-        internal class AddCharResult
-        {
-            public string displayName;
-            public long DaybreakID;
-            public AddCharResult() { }
-            public AddCharResult(string displayName, long DaybreakID)
-            {
-                this.displayName = displayName;
-                this.DaybreakID = DaybreakID;
-            }
-            public override string ToString()
-            {
-                return displayName;
-            }
-        }
-
         private void AddCharNameReset_Click(object sender, EventArgs e)
         {
             AddCharNameKeyTB.Text = string.Empty;
             AddCharNameSearchRsltsLB.Items.Clear();
             _ = AddCharNameKeyTB.Focus();
         }
-
         private void AddCharNameCofirm_Click(object sender, EventArgs e)
         {
-            if (AddCharNameSearchRsltsLB.SelectedItem == null)
-                return;
-            if (AddCharNameSearchRsltsLB.SelectedItem is Characters NewChar)
+            if ((AddCharNameSearchRsltsLB.SelectedItem == null) && (AddCharNameSearchRsltsLB.Items.Count > 0))
             {
-                this.NewChar = NewChar;
-                DialogResult = DialogResult.OK;
-                Close();
+                _ = MessageBox.Show("Please select a character to add and try again.",
+                                    "No Character Selected", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
-
+            if (AddCharNameSearchRsltsLB.SelectedItem is AddCharResult NewChar)
+            {
+                try { this.NewChar = new Characters(NewChar.DaybreakID); }
+                catch (Exception Err)
+                {
+                    ReturnedException = Err;
+                    DialogResult = DialogResult.Abort;
+                }
+                DialogResult = DialogResult.OK;
+            }
         }
-
         private void AddCharNameKeyTB_Leave(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(AddCharNameKeyTB.Text))
             {
                 AddCharNameKeyTB.Text = CharName;
             }
+        }
+        private void AddCharIDMTB_TextChanged(object sender, EventArgs e)
+        {
+            _ = AddCharIDMTB.ValidateText();
         }
     }
 }

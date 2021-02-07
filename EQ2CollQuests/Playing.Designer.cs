@@ -123,6 +123,7 @@ namespace EQ2CollQuests
             this.MinimizeBox = false;
             this.Name = "Playing";
             this.Text = "Playing as";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Playing_FormClosing);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Playing_Paint);
             this.PASplitContainer.Panel1.ResumeLayout(false);
             this.PASplitContainer.Panel2.ResumeLayout(false);

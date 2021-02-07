@@ -13,15 +13,27 @@ namespace EQ2CollQuests
         private void AddChar_Click(object sender, EventArgs e)
         {
             AddCharForm NewCharForm = new AddCharForm();
-            if (NewCharForm.ShowDialog() == DialogResult.OK)
+            DialogResult AddCharResult = NewCharForm.ShowDialog();
+            if (AddCharResult == DialogResult.OK)
             {
-                Program.charList.Add(NewCharForm.NewChar);
-                Program.charList.Sort();
                 CharGetAllQuests(NewCharForm.NewChar);
+                foreach (long QuestID in NewCharForm.NewChar.CharCollection.Keys)
+                {
+                    _ = NewCharForm.NewChar.IsComplete(QuestID);
+                }
+                Program.charList[NewCharForm.NewChar.DaybreakID] = NewCharForm.NewChar;
+                _ = CharListBox.Items.Add(NewCharForm.NewChar);
+                _ = PlayingAsComboBox.Items.Add(NewCharForm.NewChar);
                 dirties[0] = true;
                 StatusStripDirtyIndicator.Text = FloppyString;
             }
+            else if (AddCharResult == DialogResult.Abort)
+            {
+                BadEnd();
+                throw NewCharForm.ReturnedException;
+            }
             NewCharForm.Dispose();
+            AllItemsPresentCheck();
             CharListBox_DrawItem(sender, null);
         }
         private void AddChar_Paint(object sender, PaintEventArgs e)
@@ -36,6 +48,8 @@ namespace EQ2CollQuests
             CharListBox.SelectedIndex = -1;
             CharIntroTxtBox.Text = string.Empty;
             CharQuestItemsCheckListBox.Items.Clear();
+            CharQuestListBox.Items.Clear();
+            _ = CharListBox.Focus();
         }
         private void CharacterPage_Leave(object sender, EventArgs e)
         {
@@ -61,34 +75,49 @@ namespace EQ2CollQuests
         private void CharGetAllQuests(Characters thisChar)
         {
             int oldQuestCount = Program.questList.Count, oldItemCount = Program.itemList.Count;
-            ConcurrentBag<QuestItem> newItems;
             Cursor.Current = Cursors.WaitCursor;
+            List<long> NewItemsList = new List<long>();
+            ConcurrentBag<QuestItem> NewItemsBag = new ConcurrentBag<QuestItem>();
             StatusStripProgressBar.Maximum = thisChar.CharCollection.Count;
             StatusStripProgressBar.Value = 0;
             StatusStripProgressBar.Visible = true;
             foreach (long thisColl in thisChar.CharCollection.Keys)
             {
-                newItems = new ConcurrentBag<QuestItem>();
-                if (Program.questList.FindAll(p => p.DaybreakID == thisColl).Count == 0)
+                if (!Program.questList.ContainsKey(thisColl))
                 {
-                    CollQuest TempQuest = new CollQuest(thisColl);
-                    Program.questList.Add(TempQuest);
+                    CollQuest TempQuest;
+                    try { TempQuest = new CollQuest(thisColl); }
+                    catch (Exception Err)
+                    {
+                        BadEnd();
+                        throw Err;
+                    }
+                    Program.questList[TempQuest.DaybreakID] = TempQuest;
                     _ = Parallel.ForEach(TempQuest.items, thisItem =>
                     {
-                        if (Program.itemList.FindAll(q => q.DaybreakID == thisItem).Count == 0)
+                        QuestItem TempItem;
+                        if (!Program.itemList.ContainsKey(thisItem))
                         {
-                            if (newItems.Select(r => r.DaybreakID == thisItem).ToList().Count == 0)
-                                newItems.Add(new QuestItem(thisItem));
+                            try { TempItem = new QuestItem(thisItem); }
+                            catch (Exception Err)
+                            {
+                                BadEnd();
+                                throw Err;
+                            }
+                            if (!NewItemsBag.Contains(TempItem))
+                                NewItemsBag.Add(TempItem);
                         }
                     });
                 }
-                Program.itemList.AddRange(newItems);
                 StatusStripProgressBar.Value++;
+            }
+            if (NewItemsBag.Count > 0)
+            {
+                foreach (QuestItem ThisItem in NewItemsBag)
+                    Program.itemList[ThisItem.DaybreakID] = ThisItem;
             }
             Cursor.Current = Cursors.Default;
             StatusStripProgressBar.Visible = false;
-            Program.questList.Sort();
-            Program.itemList.Sort();
             CharQuestListBox.Refresh();
             dirties[2] = (oldItemCount != Program.itemList.Count) || dirties[2];
             dirties[3] = (oldQuestCount != Program.questList.Count) || dirties[3];
@@ -108,8 +137,8 @@ namespace EQ2CollQuests
             }
             else
             {
-                CharListBox.Items.AddRange(Program.charList.ToArray());
-                PlayingAsComboBox.Items.AddRange(Program.charList.ToArray());
+                CharListBox.Items.AddRange(Program.charList.Values.ToArray());
+                PlayingAsComboBox.Items.AddRange(Program.charList.Values.ToArray());
             }
         }
         private void CharListBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -126,28 +155,36 @@ namespace EQ2CollQuests
             Characters thisChar = CharListBox.SelectedItem as Characters;
             CharIntroTxtBox.Text = $"{thisChar.name} is a {thisChar.AdvLvl} {Program.AdvClasses[thisChar.AdvClass]}";
             DialogResult GetAllQuests = DialogResult.Retry;
+            int OldItemCount;
             foreach (long thisColl in thisChar.CharCollection.Keys)
             {
-                switch (Program.questList.FindAll(p => p.DaybreakID == thisColl).Count)
+                OldItemCount = thisChar.CharCollection[thisColl].Count;
+                if (thisChar.IsComplete(thisColl) && HideCompletedOnChar)
                 {
-                    case 0:
-                        if (GetAllQuests == DialogResult.Retry)
-                        {
-                            GetAllQuests = MessageBox.Show($"{thisChar.name} has one or more missing quests.\nWould you like to download the missing quests now?",
-                                "Missing Quests", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                        }
-                        if (GetAllQuests == DialogResult.Yes)
-                        {
-                            CharGetAllQuests(thisChar);
-                            CharQuestListBox.Items.Add(Program.questList.Find(p => p.DaybreakID == thisColl));
-                        }
-                        break;
-                    case 1:
-                        CharQuestListBox.Items.Add(Program.questList.Find(p => p.DaybreakID == thisColl));
-                        break;
-                    default:
-                        throw new Exception("More than one quest was found with a \"unique\" identifier. This should never happen.");
+                    if (OldItemCount != thisChar.CharCollection[thisColl].Count)
+                    {
+                        dirties[0] = true;
+                        UpdateDirtiesStatus();
+                    }
+                    continue;
                 }
+                else if (OldItemCount != thisChar.CharCollection[thisColl].Count)
+                {
+                    dirties[0] = true;
+                    UpdateDirtiesStatus();
+                }
+                if ((!Program.questList.ContainsKey(thisColl)) && (GetAllQuests == DialogResult.Retry))
+                {
+                    GetAllQuests = MessageBox.Show($"{thisChar.name} has one or more missing quests.\nWould you like to download the missing quests now?",
+                        "Missing Quests", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                }
+                if (!Program.questList.ContainsKey(thisColl) && (GetAllQuests == DialogResult.Yes))
+                {
+                    CharGetAllQuests(thisChar);
+                    CharQuestListBox.Items.Add(Program.questList[thisColl]);
+                }
+                else if (Program.questList.ContainsKey(thisColl))
+                    CharQuestListBox.Items.Add(Program.questList[thisColl]);
             }
             CharQuestListBox.Refresh();
             if (CharListBox.SelectedIndex == -1)
@@ -183,18 +220,45 @@ namespace EQ2CollQuests
             }
             CollQuest thisQuest = (CollQuest)CharQuestListBox.SelectedItem;
             Characters thisChar = (Characters)CharListBox.SelectedItem;
+            int OldCount = 0;
+            if (thisChar == null)
+            {
+                CharQuestListBox.Items.Clear();
+                _ = CharListBox.Focus();
+                return;
+            }
+            if (thisChar.CharCollection.ContainsKey(thisQuest.DaybreakID))
+            {
+                OldCount = thisChar.CharCollection[thisQuest.DaybreakID].Count;
+            }
+            if (thisChar.CharCollection.ContainsKey(thisQuest.DaybreakID) && (OldCount != thisChar.CharCollection[thisQuest.DaybreakID].Count))
+            {
+                dirties[0] = true;
+                UpdateDirtiesStatus();
+            }
             foreach (long thisItemID in thisQuest.items)
             {
-                QuestItem thisItem = Program.itemList.Find(p => p.DaybreakID == thisItemID);
+                QuestItem thisItem = Program.itemList[thisItemID];
                 if (thisItem == null)
                 {
-                    thisItem = new QuestItem(thisItemID);
-                    Program.itemList.Add(thisItem);
-                    Program.itemList.Sort();
+                    try { thisItem = new QuestItem(thisItemID); }
+                    catch (Exception Err)
+                    {
+                        BadEnd();
+                        throw Err;
+                    }
+                    Program.itemList[thisItem.DaybreakID] = thisItem;
                     dirties[2] = true;
                     StatusStripDirtyIndicator.Text = FloppyString;
                 }
-                CharQuestItemsCheckListBox.Items.Add(thisItem, thisChar.CharCollection[thisQuest.DaybreakID].Contains(thisItemID));
+                if (thisChar.IsComplete(thisQuest.DaybreakID))
+                {
+                    _ = CharQuestItemsCheckListBox.Items.Add(thisItem, true);
+                }
+                else
+                {
+                    _ = CharQuestItemsCheckListBox.Items.Add(thisItem, thisChar.CharCollection[thisQuest.DaybreakID].Contains(thisItemID));
+                }
             }
             CharQuestItemsCheckListBox.Refresh();
         }
@@ -207,18 +271,30 @@ namespace EQ2CollQuests
         private void UpdChar_Click(object sender, EventArgs e)
         {
             if (CharListBox.SelectedIndex == -1)
+            {
+                if (CharQuestListBox.Items.Count > 0)
+                {
+                    CharQuestListBox.Items.Clear();
+                }
                 return;
+            }
+
             if (CharListBox.SelectedItem is Characters thisChar)
             {
-                Characters newChar = new Characters(thisChar.DaybreakID);
-                int CharLoc = Program.charList.FindIndex(p => p.DaybreakID == thisChar.DaybreakID);
-                if (newChar.TimePlayed == Program.charList[CharLoc].TimePlayed)
+                Characters newChar;
+                try { newChar = new Characters(thisChar.DaybreakID); }
+                catch (Exception Err)
+                {
+                    BadEnd();
+                    throw Err;
+                }
+                if (newChar.TimePlayed == Program.charList[thisChar.DaybreakID].TimePlayed)
                     return;
-                Program.charList[CharLoc] = newChar;
+                Program.charList[thisChar.DaybreakID] = newChar;
                 bool MissingQuests = false;
                 foreach (long thisQuest in newChar.CharCollection.Keys)
                 {
-                    MissingQuests = (Program.questList.FindAll(p => p.DaybreakID == thisQuest).ToList().Count == 1) || MissingQuests;
+                    MissingQuests = (!Program.questList.ContainsKey(thisQuest)) || MissingQuests;
                 }
                 if (MissingQuests)
                 {

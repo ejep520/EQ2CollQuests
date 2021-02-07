@@ -103,12 +103,13 @@
             // AddCharIDMTB
             // 
             this.AddCharIDMTB.Location = new System.Drawing.Point(3, 6);
-            this.AddCharIDMTB.Mask = "000000000000000";
             this.AddCharIDMTB.Name = "AddCharIDMTB";
             this.AddCharIDMTB.PromptChar = ' ';
             this.AddCharIDMTB.Size = new System.Drawing.Size(111, 20);
             this.AddCharIDMTB.TabIndex = 0;
+            this.AddCharIDMTB.ValidatingType = typeof(long);
             this.AddCharIDMTB.TypeValidationCompleted += new System.Windows.Forms.TypeValidationEventHandler(this.AddCharIDMTB_TypeValidationCompleted);
+            this.AddCharIDMTB.TextChanged += new System.EventHandler(this.AddCharIDMTB_TextChanged);
             // 
             // AddCharIDBttn
             // 
@@ -130,7 +131,7 @@
             this.AddCharByName.Location = new System.Drawing.Point(4, 22);
             this.AddCharByName.Name = "AddCharByName";
             this.AddCharByName.Padding = new System.Windows.Forms.Padding(3);
-            this.AddCharByName.Size = new System.Drawing.Size(219, 179);
+            this.AddCharByName.Size = new System.Drawing.Size(219, 173);
             this.AddCharByName.TabIndex = 1;
             this.AddCharByName.Text = "Search By Name";
             this.AddCharByName.UseVisualStyleBackColor = true;

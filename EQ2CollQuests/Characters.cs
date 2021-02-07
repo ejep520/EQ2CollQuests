@@ -16,7 +16,7 @@ namespace EQ2CollQuests
         }
         [XmlIgnore] public readonly Dictionary<long, List<long>> CharCollection = new Dictionary<long, List<long>>();
         public string name;
-        public short AdvLvl, AdvClass;
+        public short AdvLvl, AdvClass, ServerID;
         public long TimePlayed, DaybreakID;
         public Characters()
         {
@@ -32,7 +32,7 @@ namespace EQ2CollQuests
         public Characters(long CharID)
         {
             XDocument XCharDoc = Program.GetThisURL(string.Concat(@"character/?c:show=displayname,",
-                @"type.level,type.ts_level,type.classid,playedtime,id&id=", CharID.ToString()));
+                @"type.level,type.ts_level,type.classid,playedtime,id,locationdata.worldid&id=", CharID.ToString()));
             XDocument XCharMiscDoc = Program.GetThisURL(string.Concat(@"character_misc/?c:show=collection_list&id=",
                 CharID.ToString()));
             ParseXChar(XCharDoc.Root.Element("character"), XCharMiscDoc.Root.Element("character_misc"));
@@ -40,17 +40,20 @@ namespace EQ2CollQuests
         private void ParseXChar(XElement CharElement, XElement CharMiscElement)
         {
             long TempCollID;
-            XElement TypeElement = CharElement.Element("type");
+            XElement TypeElement = CharElement.Element("type"), LocElement = CharElement.Element("locationdata");
             name = CharElement.Attribute("displayname").Value.Split(' ')[0];
             AdvLvl = short.Parse(TypeElement.Attribute("level").Value);
             AdvClass = short.Parse(TypeElement.Attribute("classid").Value);
             TimePlayed = long.Parse(CharElement.Attribute("playedtime").Value);
             DaybreakID = long.Parse(CharElement.Attribute("id").Value);
+            ServerID = short.Parse(LocElement.Attribute("worldid").Value);
             foreach (XElement thisColl in CharMiscElement.Element("collection_list").Elements("collection"))
             {
                 TempCollID = long.Parse(thisColl.Attribute("crc").Value);
                 if (CharCollection.ContainsKey(TempCollID))
+                {
                     throw new Exception($"{name} has more than one instance of collection quest number {TempCollID}.");
+                }
                 else
                     CharCollection[TempCollID] = new List<long>();
                 foreach (XElement thisItem in thisColl.Element("item_list").Elements("item"))
@@ -78,6 +81,14 @@ namespace EQ2CollQuests
             AdvClass = short.Parse(reader.GetAttribute("AdvClass"));
             TimePlayed = long.Parse(reader.GetAttribute("TimePlayed"));
             DaybreakID = long.Parse(reader.GetAttribute("DaybreakID"));
+            short MaybeServer;
+            try { MaybeServer = short.Parse(reader.GetAttribute("ServerID")); }
+            catch (ArgumentNullException)
+            {
+                XDocument RawServer = Program.GetThisURL(string.Concat(@"character/?c:show=locationdata.worldid&id=", DaybreakID.ToString()));
+                MaybeServer = short.Parse(RawServer.Root.Element("character").Element("locationdata").Attribute("worldid").Value);
+            }
+            ServerID = MaybeServer;
             reader.ReadStartElement("Character");
             keyEntries = (List<KeyEntry>)xmlSerializer.Deserialize(reader);
             foreach(KeyEntry keyEntry in keyEntries)
@@ -108,6 +119,7 @@ namespace EQ2CollQuests
             writer.WriteAttributeString("AdvClass", AdvClass.ToString());
             writer.WriteAttributeString("TimePlayed", TimePlayed.ToString());
             writer.WriteAttributeString("DaybreakID", DaybreakID.ToString());
+            writer.WriteAttributeString("ServerID", ServerID.ToString());
             xmlSerializer.Serialize(writer, keyEntries);
             writer.WriteFullEndElement();
             keyEntries.Clear();
@@ -115,7 +127,7 @@ namespace EQ2CollQuests
         #endregion
         public override string ToString()
         {
-            return name;
+            return $"{name} ({Program.serverList[ServerID]})";
         }
         public void Dispose()
         {
@@ -129,6 +141,21 @@ namespace EQ2CollQuests
                 thisList.Clear();
             }
             CharCollection.Clear();
+        }
+        public bool IsComplete(long QuestID)
+        {
+            if (!CharCollection.ContainsKey(QuestID) ||
+                (CharCollection[QuestID].Count == 0))
+                return false;
+            if (CharCollection[QuestID].Count == Program.questList[QuestID].items.Count)
+            {
+                CharCollection[QuestID].Clear();
+                CharCollection[QuestID].Add(-1);
+            }
+            if (CharCollection[QuestID][0] == -1)
+                return true;
+            else
+                return false;
         }
     }
 }
